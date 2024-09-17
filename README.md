@@ -57,19 +57,5 @@ With 80% test coverage using JUnit, the platform is built to ensure reliability 
 
 ## 💼 **Future Enhancements**
 
-- **Multi-currency Support**: Allow donations in various currencies.
 - **Analytics Dashboard**: Provide streamers with detailed analytics on donations and audience engagement.
 - **Subscription Model**: Introduce recurring donations and membership tiers for enhanced user engagement.
-
----
-
-Feel free to contribute! Check out the issues section for open features or bugs.  
-
----
-
-**License**  
-This project is licensed under the MIT License. For more details, see [LICENSE](./LICENSE).
-
----
-
-This structure provides clear, concise information with easy-to-follow instructions and enhances the readability with headers, code snippets, and sections about key features.
