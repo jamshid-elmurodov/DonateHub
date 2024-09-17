@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="donate_hub_bot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
+
+<script type="text/javascript">
+    function onTelegramAuth(user) {
+        const params = new URLSearchParams({
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            username: user.username,
+            photo_url: user.photo_url,
+            auth_date: user.auth_date,
+            hash: user.hash
+        });
+
+        fetch(`https://c000-178-218-201-17.ngrok-free.app/api/v1/auth?${params.toString()}`, {
+            method: 'GET',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server javobi:', data);
+                // Auth muvaffaqiyatli bo'lsa nima qilish kerakligini yozing
+            })
+            .catch(error => {
+                console.error('Fetch xatolik:', error);
+            });
+    }
+</script>
+
+
+</body>
+</html>

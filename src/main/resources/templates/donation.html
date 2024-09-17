@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Alert</title>
+    <style>
+        /* CSS style your page */
+        body {
+            background-color: rgba(0, 0, 0, 0);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 3em;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        #message {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        #alertImage {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 80%;
+            height: auto;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        #video, #audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="message"></div>
+<video id="video" controls></video>
+<audio id="audio" controls></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userId = '${api}';
+
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/donation/' + userId, function (message) {
+                const messageElement = document.getElementById('message');
+                const alertImage = document.getElementById('alertImage');
+                const videoElement = document.getElementById('video');
+                const audioElement = document.getElementById('audio');
+                const data = JSON.parse(message.body);
+
+                messageElement.textContent = `${data.donaterName} donated ${data.amount}. Message: ${data.message}`;
+                alertImage.style.opacity = 1;
+
+                if (data.videoUrl) {
+                    videoElement.src = data.videoUrl;
+                    videoElement.style.display = 'block';
+                }
+
+                if (data.audioUrl) {
+                    audioElement.src = data.audioUrl;
+                    audioElement.style.display = 'block';
+                }
+
+                setTimeout(function() {
+                    messageElement.style.opacity = 0;
+                    alertImage.style.opacity = 0;
+                    videoElement.style.display = 'none';
+                    audioElement.style.display = 'none';
+                }, 5000);
+            });
+        });
+    });
+</script>
+</body>
+</html>
