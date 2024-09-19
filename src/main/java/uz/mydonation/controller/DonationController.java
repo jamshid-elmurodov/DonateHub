@@ -3,23 +3,33 @@ package uz.mydonation.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.mydonation.domain.model.FullStatisticRes;
+import uz.mydonation.domain.enums.PaymentMethod;
+import uz.mydonation.domain.response.FullStatisticRes;
 import uz.mydonation.domain.model.PagedRes;
-import uz.mydonation.domain.model.StatisticRes;
+import uz.mydonation.domain.response.StatisticRes;
 import uz.mydonation.domain.projection.DonationInfo;
 import uz.mydonation.domain.request.DonationReq;
 import uz.mydonation.service.donation.DonationService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/donation")
 public class DonationController {
     private final DonationService donationService;
+
+    @PostMapping("/complete/{method}")
+    public void complete(@RequestBody String body, @PathVariable PaymentMethod method){
+        log.info(body);
+
+        donationService.complete(body, method);
+    }
 
     @PostMapping("/{streamerId}")
     public ResponseEntity<String> donate(@PathVariable Long streamerId,
@@ -42,7 +52,7 @@ public class DonationController {
             @Valid @RequestParam @Min(1) int days,
             @RequestParam int page,
             @RequestParam int size) {
-        return new PagedRes<>(donationService.getDonations(page, size, days));
+        return new PagedRes<>(donationService.getAllDonations(page, size, days));
     }
 
     @GetMapping("/statistics")

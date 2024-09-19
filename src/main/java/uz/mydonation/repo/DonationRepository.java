@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.mydonation.domain.entity.DonationEntity;
-import uz.mydonation.domain.model.FullStatisticRes;
-import uz.mydonation.domain.model.StatisticRes;
+import uz.mydonation.domain.response.FullStatisticRes;
+import uz.mydonation.domain.response.StatisticRes;
 import uz.mydonation.domain.projection.DonationInfo;
 
 import java.time.LocalDate;

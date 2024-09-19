@@ -1,4 +1,4 @@
-package uz.mydonation.domain.model;
+package uz.mydonation.domain.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

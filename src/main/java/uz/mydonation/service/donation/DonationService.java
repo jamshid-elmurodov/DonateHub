@@ -2,8 +2,8 @@ package uz.mydonation.service.donation;
 
 import org.springframework.data.domain.Page;
 import uz.mydonation.domain.enums.PaymentMethod;
-import uz.mydonation.domain.model.FullStatisticRes;
-import uz.mydonation.domain.model.StatisticRes;
+import uz.mydonation.domain.response.FullStatisticRes;
+import uz.mydonation.domain.response.StatisticRes;
 import uz.mydonation.domain.projection.DonationInfo;
 import uz.mydonation.domain.request.DonationReq;
 
@@ -16,7 +16,7 @@ public interface DonationService {
 
     Page<DonationInfo> getDonationsOfStreamer(Long streamerId, int page, int size, int days);
 
-    Page<DonationInfo> getDonations(int page, int size, int days);
+    Page<DonationInfo> getAllDonations(int page, int size, int days);
 
     List<StatisticRes> getStatisticsForAdmin(int days);
 

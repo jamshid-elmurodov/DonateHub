@@ -17,7 +17,7 @@ public interface UserService {
 
     UserEntity findById(Long chatId);
 
-    void addAmountToBalance(Long streamerId, Integer amount);
+    void recalculateStreamerBalance(Long streamerId, Integer amount);
 
     void update(Long userId, UpdateUserReq updateReq, MultipartFile profileImg, MultipartFile bannerImg);
 

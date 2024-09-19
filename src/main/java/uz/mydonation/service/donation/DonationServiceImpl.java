@@ -1,7 +1,5 @@
 package uz.mydonation.service.donation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,12 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.mydonation.domain.entity.DonationEntity;
 import uz.mydonation.domain.entity.UserEntity;
-import uz.mydonation.domain.entity.DonationWidgetEntity;
+import uz.mydonation.domain.entity.WidgetEntity;
 import uz.mydonation.domain.enums.PaymentMethod;
 import uz.mydonation.domain.exception.BaseException;
 import uz.mydonation.domain.model.*;
 import uz.mydonation.domain.projection.DonationInfo;
 import uz.mydonation.domain.request.DonationReq;
+import uz.mydonation.domain.response.*;
 import uz.mydonation.repo.DonationRepository;
 import uz.mydonation.service.payment.PaymentService;
 import uz.mydonation.utils.BotExecutor;
@@ -25,13 +24,15 @@ import uz.mydonation.service.widget.WidgetService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DonationServiceImpl implements DonationService {
     private final DonationRepository repo;
     private final UserService userService;
-    private final ObjectMapper objectMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final WidgetService widgetService;
     private final PaymentService mirPayPaymentService;
@@ -41,7 +42,6 @@ public class DonationServiceImpl implements DonationService {
     public DonationServiceImpl(
             DonationRepository repo,
             UserService userService,
-            ObjectMapper objectMapper,
             SimpMessagingTemplate messagingTemplate,
             WidgetService widgetService,
             @Qualifier("mirpay") PaymentService mirPayPaymentService,
@@ -50,7 +50,6 @@ public class DonationServiceImpl implements DonationService {
     ) {
         this.repo = repo;
         this.userService = userService;
-        this.objectMapper = objectMapper;
         this.messagingTemplate = messagingTemplate;
         this.widgetService = widgetService;
         this.mirPayPaymentService = mirPayPaymentService;
@@ -68,6 +67,7 @@ public class DonationServiceImpl implements DonationService {
                 .donaterName(donateReq.getDonaterName())
                 .completed(false)
                 .message(donateReq.getMessage())
+                .streamer(streamer)
                 .build();
 
         PaymentInfo paymentInfo = PaymentInfo.builder()
@@ -106,38 +106,62 @@ public class DonationServiceImpl implements DonationService {
     }
 
     private void completeMirPay(String body) {
-        try {
-            MirPayCompilationRes compilationRes = objectMapper.readValue(body, MirPayCompilationRes.class);
-            DonationEntity donation = getDonationByPaymentId(compilationRes);
+        MirPayCompilationRes compilationRes = readBodyMirpay(body);
+        DonationEntity donation = getDonationByPaymentId(compilationRes);
 
-            if ("Muvaffaqiyatli".equals(compilationRes.getStatus())) {
-                completeDonation(donation);
-                return;
-            }
+//        if (donation.getCompleted()){
+//            throw new BaseException(
+//                    "Xayriya avval amalga oshirilgan",
+//                    HttpStatus.BAD_REQUEST
+//            );
+//        }
 
-            throw new BaseException(
-                    String.format("Donat summasi to'liq amalga oshirilmagan %s", compilationRes.getId()),
-                    HttpStatus.BAD_REQUEST
-            );
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        if (Objects.equals("Muvaffaqiyatli", compilationRes.getStatus())) {
+            completeDonation(donation);
+            return;
         }
+
+        throw new BaseException(
+                String.format("Donat summasi to'liq amalga oshirilmagan %s", compilationRes.getId()),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    private MirPayCompilationRes readBodyMirpay(String body) {
+        MirPayCompilationRes mirPayCompilationRes = new MirPayCompilationRes();
+
+        String[] arr = body.split("&");
+
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = arr[i].split("=")[1];
+        }
+
+        List<String> list = new ArrayList<>(Arrays.asList(arr));
+
+        mirPayCompilationRes.setId(list.get(0));
+        mirPayCompilationRes.setSumma(list.get(1));
+        mirPayCompilationRes.setStatus(list.get(2).substring(0, list.get(2).length() - 1));
+
+        return mirPayCompilationRes;
     }
 
     private void completeDonation(DonationEntity donation) {
         donation.setCompleted(true);
         repo.save(donation);
 
-        userService.addAmountToBalance(donation.getStreamer().getChatId(), donation.getPaymentInfo().getAmount());
+        userService.recalculateStreamerBalance(donation.getStreamer().getChatId(), donation.getPaymentInfo().getAmount());
 
-        executeToStream(donation);
+        if (userService.findById(donation.getStreamer().getId()).getOnline()) {
+            executeToStream(donation);
+        }
+
         botExecutor.sendDonationInfo(donation.getStreamer().getChatId(), donation);
     }
 
     private void executeToStream(DonationEntity donation) {
-        DonationWidgetEntity widget = widgetService.getDonationWidgetOfStreamer(donation.getStreamer().getId());
+        WidgetEntity widget = widgetService.getDonationWidgetOfStreamer(donation.getStreamer().getId());
 
-        messagingTemplate.convertAndSend("/donation/" + donation.getStreamer().getApi(),
+        messagingTemplate.convertAndSend("/topic/donation/" + donation.getStreamer().getApi(),
                 new DonationRes(donation.getDonaterName(), donation.getMessage(),
                         donation.getPaymentInfo().getAmount(), widget.getVideoUrl(), widget.getAudioUrl()));
     }
@@ -163,7 +187,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public Page<DonationInfo> getDonations(int page, int size, int days) {
+    public Page<DonationInfo> getAllDonations(int page, int size, int days) {
         return repo.getAllByCreatedAtAfterAndCompletedIsTrue(LocalDateTime.now().minusDays(days + 1), PageRequest.of(page, size));
     }
 

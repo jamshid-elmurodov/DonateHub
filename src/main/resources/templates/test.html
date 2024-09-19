@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Telegram</title>
 </head>
 <body>
 <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="donate_hub_bot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
@@ -19,7 +19,7 @@
             hash: user.hash
         });
 
-        fetch(`https://c000-178-218-201-17.ngrok-free.app/api/v1/auth?${params.toString()}`, {
+        fetch(` https://mighty-weasel-privately.ngrok-free.app/api/v1/auth?${params.toString()}`, {
             method: 'GET',
         })
             .then(response => {
@@ -30,10 +30,9 @@
             })
             .then(data => {
                 console.log('Server javobi:', data);
-                // Auth muvaffaqiyatli bo'lsa nima qilish kerakligini yozing
             })
             .catch(error => {
-                console.error('Fetch xatolik:', error);
+                console.log('Fetch xatolik:', error);
             });
     }
 </script>

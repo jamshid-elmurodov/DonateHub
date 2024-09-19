@@ -10,9 +10,9 @@ public interface WithdrawService {
 
     void setStatus(Long withdrawId, WithdrawStatus status);
 
+    WithdrawEntity findById(Long withdrawId);
+
     Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, int days, WithdrawStatus status);
 
     Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, int days, WithdrawStatus status);
-
-    WithdrawEntity findById(Long withdrawId);
 }

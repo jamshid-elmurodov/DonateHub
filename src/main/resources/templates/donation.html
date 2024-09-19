@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,75 +10,97 @@
         body {
             background-color: rgba(0, 0, 0, 0);
             margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden; /* Overflow to hide scrollbars */
             height: 100vh;
-            font-size: 3em;
+            font-size: 1em; /* Adjusted font size for better visibility */
             color: white;
             text-align: center;
             position: relative;
         }
-        #message {
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        #alertImage {
+        #video {
             position: absolute;
-            top: 10%;
+            top: 0;
+            left: 0;
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            object-fit: cover; /* Cover the entire viewport */
+            z-index: -1; /* Make sure video is behind text */
+        }
+        #message {
+            position: absolute;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
-            max-width: 80%;
-            height: auto;
+            font-size: 2em;
             opacity: 0;
             transition: opacity 1s ease-in-out;
+            z-index: 1; /* Ensure message is above video */
         }
-        #video, #audio {
+        #audio {
+            display: none;
+        }
+        /* Hide the 'api' paragraph */
+        #api {
             display: none;
         }
     </style>
 </head>
 <body>
-<div id="message"></div>
 <video id="video" controls></video>
+<div id="message"></div>
 <audio id="audio" controls></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+<p hidden id="api" th:text="${api}"></p>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const userId = '${api}';
+        const userId = document.getElementById("api").textContent.trim();
+        console.log('User ID:', userId);
 
         const socket = new SockJS('/ws');
         const stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function () {
-            stompClient.subscribe('/donation/' + userId, function (message) {
+            console.log("WebSocket connected!");
+
+            stompClient.subscribe('/topic/donation/' + userId, function (message) {
+                console.log("Message received: ", message.body);
+
                 const messageElement = document.getElementById('message');
-                const alertImage = document.getElementById('alertImage');
                 const videoElement = document.getElementById('video');
                 const audioElement = document.getElementById('audio');
-                const data = JSON.parse(message.body);
 
-                messageElement.textContent = `${data.donaterName} donated ${data.amount}. Message: ${data.message}`;
-                alertImage.style.opacity = 1;
+                try {
+                    const data = JSON.parse(message.body);
 
-                if (data.videoUrl) {
-                    videoElement.src = data.videoUrl;
-                    videoElement.style.display = 'block';
+                    messageElement.textContent = `${data.donaterName} donated ${data.amount}. Message: ${data.message}`;
+                    messageElement.hidden = false;
+
+                    if (data.videoUrl) {
+                        videoElement.src = data.videoUrl;
+                        videoElement.hidden = false;
+                        videoElement.play().catch(err => console.log("Video oynatishda xato:", err));
+                    }
+
+                    if (data.audioUrl) {
+                        audioElement.src = data.audioUrl;
+                        audioElement.hidden = false;
+                        audioElement.play().catch(err => console.log("Audio oynatishda xato:", err));
+                    }
+
+                    setTimeout(function() {
+                        messageElement.hidden = true;
+                        videoElement.pause();
+                        videoElement.hidden = true;
+                        audioElement.pause();
+                        audioElement.hidden = true;
+                    }, 5000);
+
+                } catch (error) {
+                    console.error("Xabar JSON formatida emas", error);
                 }
-
-                if (data.audioUrl) {
-                    audioElement.src = data.audioUrl;
-                    audioElement.style.display = 'block';
-                }
-
-                setTimeout(function() {
-                    messageElement.style.opacity = 0;
-                    alertImage.style.opacity = 0;
-                    videoElement.style.display = 'none';
-                    audioElement.style.display = 'none';
-                }, 5000);
             });
         });
     });

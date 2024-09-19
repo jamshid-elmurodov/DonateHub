@@ -3,17 +3,20 @@ package uz.mydonation.service.auth;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.conscrypt.NativeCrypto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.exception.BaseException;
+import uz.mydonation.domain.request.AuthReq;
+import uz.mydonation.domain.response.LoginRes;
 import uz.mydonation.repo.UserRepository;
 import uz.mydonation.config.security.JwtProvider;
 import uz.mydonation.service.user.UserService;
 import uz.mydonation.service.widget.WidgetService;
 import uz.mydonation.utils.TelegramUtils;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -29,8 +32,8 @@ public class TelegramOAuth2Service implements OAuth2 {
     private String botToken;
 
     @Override
-    public String login(Long userId, String firstName, String username, Long authDate, String hash) {
-        String dataCheckString = TelegramUtils.createDataCheckString(userId, firstName, username, authDate);
+    public LoginRes login(AuthReq authReq) {
+        String dataCheckString = TelegramUtils.createDataCheckString(authReq.getId(), authReq.getFirstName(), authReq.getUsername(), authReq.getAuthDate());
 
 //        if (!TelegramUtils.verifyAuth(dataCheckString, botToken, hash)) {
 //            throw new BaseException(
@@ -42,20 +45,24 @@ public class TelegramOAuth2Service implements OAuth2 {
         UserEntity user;
 
         try {
-            user = userService.findById(userId);
+            user = userService.findById(authReq.getId());
         } catch (BaseException e){
             user = userRepository.save(UserEntity.builder()
-                            .chatId(userId)
+                            .chatId(authReq.getId())
                             .online(false)
                             .enable(false)
-                            .firstName(firstName)
-                            .username(username)
+                            .firstName(authReq.getFirstName())
+                            .username(authReq.getUsername())
                             .balance(0)
+                            .api(UUID.randomUUID())
                             .build());
 
-            widgetService.create(userId);
+            widgetService.create(user);
         }
 
-        return jwtProvider.generate(user.getChatId());
+        return new LoginRes(
+                jwtProvider.generate(user.getChatId()),
+                user.getRole()
+        );
     }
 }

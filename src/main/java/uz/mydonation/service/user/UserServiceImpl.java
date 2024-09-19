@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addAmountToBalance(Long streamerId, Integer amount) {
+    public void recalculateStreamerBalance(Long streamerId, Integer amount) {
         UserEntity user = findById(streamerId);
         user.setBalance(user.getBalance() + amount);
         repo.save(user);

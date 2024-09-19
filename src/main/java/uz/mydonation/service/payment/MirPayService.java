@@ -8,14 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uz.mydonation.domain.exception.BaseException;
-import uz.mydonation.domain.model.PaymentRes;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import uz.mydonation.domain.response.PaymentRes;
 
 @Service(value = "mirpay")
 @RequiredArgsConstructor

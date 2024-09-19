@@ -1,4 +1,4 @@
-package uz.mydonation.domain.model;
+package uz.mydonation.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

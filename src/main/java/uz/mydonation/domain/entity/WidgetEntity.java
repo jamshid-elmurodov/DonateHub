@@ -7,15 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "settings_table")
+@Entity(name = "widgets_table")
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DonationWidgetEntity extends BaseEntity {
-    @OneToOne
-    private UserEntity streamer;
+public class WidgetEntity extends BaseEntity {
+    private Long streamerId;
 
     private String videoUrl;
 

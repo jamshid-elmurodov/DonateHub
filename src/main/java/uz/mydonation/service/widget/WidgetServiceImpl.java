@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import uz.mydonation.domain.entity.DonationWidgetEntity;
+import uz.mydonation.domain.entity.WidgetEntity;
 import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.FileType;
 import uz.mydonation.repo.WidgetRepository;
@@ -25,15 +25,13 @@ public class WidgetServiceImpl implements WidgetService {
     private String audioUrl;
 
     @Override
-    public void create(Long streamerId) {
-        UserEntity streamer = userService.findById(streamerId);
-
-        repo.save(new DonationWidgetEntity(streamer, videoUrl, audioUrl, 5));
+    public WidgetEntity create(UserEntity streamer) {
+        return repo.save(new WidgetEntity(streamer.getId(), videoUrl, audioUrl, 5));
     }
 
     @Override
     public void update(Long streamerId, MultipartFile videoFile, MultipartFile audioFile) {
-        DonationWidgetEntity donationSetting = repo.findByStreamerId(streamerId);
+        WidgetEntity donationSetting = repo.findByStreamerId(streamerId);
 
         donationSetting.setVideoUrl(cloudService.uploadFile(videoFile, FileType.VIDEO));
         donationSetting.setAudioUrl(cloudService.uploadFile(audioFile, FileType.AUDIO));
@@ -42,7 +40,7 @@ public class WidgetServiceImpl implements WidgetService {
     }
 
     @Override
-    public DonationWidgetEntity getDonationWidgetOfStreamer(Long streamerId) {
+    public WidgetEntity getDonationWidgetOfStreamer(Long streamerId) {
         return repo.findByStreamerId(streamerId);
     }
 }
