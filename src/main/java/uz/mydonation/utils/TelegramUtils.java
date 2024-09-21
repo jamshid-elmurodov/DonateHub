@@ -1,7 +1,6 @@
 package uz.mydonation.utils;
 
 import lombok.experimental.UtilityClass;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,13 +18,13 @@ public class TelegramUtils {
         );
     }
 
-    public boolean verifyAuth(String data, String botToken, String hash){
-        try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            sha256_HMAC.init(new SecretKeySpec(MessageDigest.getInstance("SHA-256").digest(botToken.getBytes(StandardCharsets.UTF_8)),"SHA256"));
-            return Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes())).equals(hash);
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            return false;
-        }
-    }
+//    public boolean verifyAuth(String data, String botToken, String hash){
+//        try {
+//            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+//            sha256_HMAC.init(new SecretKeySpec(MessageDigest.getInstance("SHA-256").digest(botToken.getBytes(StandardCharsets.UTF_8)),"SHA256"));
+//            return Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes())).equals(hash);
+//        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+//            return false;
+//        }
+//    }
 }

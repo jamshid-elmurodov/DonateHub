@@ -1,4 +1,5 @@
 package uz.mydonation.utils;
+
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import lombok.Setter;
@@ -24,9 +25,9 @@ public class TelegramLogAppender extends AppenderBase<ILoggingEvent> {
         String logLevel = eventObject.getLevel().toString();
 
         String prefix = switch (logLevel) {
-            case "ERROR" -> "❗️[ERROR] ";
-            case "WARN" -> "⚠️[WARN] ";
-            case "INFO" -> "ℹ️[INFO] ";
+            case "ERROR" -> "❗️[ERROR] \n";
+            case "WARN" -> "⚠️[WARN] \n";
+            case "INFO" -> "ℹ️[INFO] \n";
             default -> "[LOG] ";
         };
 

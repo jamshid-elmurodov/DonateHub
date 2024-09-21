@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Component
 public class JwtProvider {
-    @Value("${secret.key}")
+    @Value("${jwt.secret.key}")
     private String key;
 
     @Value("${jwt.hours}")

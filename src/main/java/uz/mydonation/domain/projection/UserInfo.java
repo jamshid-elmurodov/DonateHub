@@ -1,10 +1,18 @@
 package uz.mydonation.domain.projection;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uz.mydonation.domain.entity.UserEntity;
+
 /**
- * Projection for {@link uz.mydonation.domain.entity.UserEntity}
+ * Projection for {@link UserEntity}
  */
 public interface UserInfo {
+    @JsonProperty("id")
     Long getChatId();
+
+    String getFirstName();
+
+    String getUsername();
 
     String getDescription();
 
@@ -16,7 +24,9 @@ public interface UserInfo {
 
     String getBannerImgUrl();
 
-    Boolean isOnline();
+    Boolean getOnline();
+
+    Boolean getEnable();
 
     Integer getBalance();
 }

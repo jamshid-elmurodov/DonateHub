@@ -1,3 +1,4 @@
+
 spring:
   datasource:
     username: ${DB_USERNAME:postgres}
@@ -18,9 +19,36 @@ spring:
 springdoc:
   api-docs:
     enabled: true
-    path: "/swagger"
   swagger-ui:
     enabled: true
 
+mirpay:
+  kassa_id: 1304
+  api_key: 0acff03cbd4fca201735b13e4754fb4c
+
+default:
+  donation:
+    video:
+      url: https://videos.pexels.com/video-files/27977624/12279337_1440_2560_60fps.mp4
+    audio:
+      url: null
+
+click:
+  service:
+    id: 37162
+  merchant:
+    id: 28151
+  return:
+    url: https://mighty-weasel-privately-ngrok-free-app/api/v1/donation/comlete/CLICK
+
 server:
   port: 8050
+
+jwt:
+  secret:
+    key: ty1fiu23uft12vi3kl123kjkjnkl123njn213ugyuovbj312
+  hours: 2
+
+bot:
+  token: 7131847164:AAFmhXirKlFAFw7oIERA2YALge8pbg42PwQ
+  chatId: 1870689122

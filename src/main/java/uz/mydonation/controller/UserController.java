@@ -16,9 +16,8 @@ import uz.mydonation.domain.model.PagedRes;
 import uz.mydonation.domain.projection.UserInfo;
 import uz.mydonation.domain.request.UpdateUserReq;
 import uz.mydonation.domain.response.ExceptionRes;
-import uz.mydonation.service.user.UserService;
+import uz.mydonation.service.user.UserService;`
 
-import java.awt.*;
 import java.util.UUID;
 
 /**
@@ -46,7 +45,7 @@ public class UserController {
 
     @Hidden
     @GetMapping("/s/{api}")
-    public ModelAndView showDonationPage(@PathVariable UUID api) {
+    public ModelAn`dView showDonationPage(@PathVariable UUID api) {
         ModelAndView modelAndView = new ModelAndView("donation");
         modelAndView.addObject("api", api);
         return modelAndView;

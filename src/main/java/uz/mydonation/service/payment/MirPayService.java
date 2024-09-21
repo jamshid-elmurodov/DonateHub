@@ -25,10 +25,10 @@ public class MirPayService implements PaymentService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${payment.kassa_id}")
+    @Value("${mirpay.kassa_id}")
     private String kassaId;
 
-    @Value("${payment.api_key}")
+    @Value("${mirpay.api_key}")
     private String apiKey;
 
     @Override

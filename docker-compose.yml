@@ -1,0 +1,20 @@
+services:
+  postgres-instance:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+      POSTGRES_DB: donatehub
+    ports:
+      - "5433:5432"
+
+  donate-hub:
+    build: ./
+    depends_on:
+      - postgres-instance
+    environment:
+      DB_URL: postgres-instance
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1111
+    ports:
+      - "8050:8050"
