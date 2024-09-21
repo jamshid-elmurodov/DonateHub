@@ -3,16 +3,25 @@ package uz.mydonation.service.payment;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uz.mydonation.domain.exception.BaseException;
+import uz.mydonation.domain.response.MirPayCompilationRes;
 import uz.mydonation.domain.response.PaymentRes;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service(value = "mirpay")
 @RequiredArgsConstructor
 public class MirPayService implements PaymentService {
+    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -22,10 +31,11 @@ public class MirPayService implements PaymentService {
     @Value("${payment.api_key}")
     private String apiKey;
 
-    public PaymentRes create(Integer amount, String description){
+    @Override
+    public PaymentRes create(Integer amount){
         String token = getToken().token;
 
-        String uri = String.format("https://mirpay.uz/api/create-pay?summa=%s&info_pay=%s", amount, description);
+        String uri = String.format("https://mirpay.uz/api/create-pay?summa=%s&info_pay=%s", amount, 1001);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);

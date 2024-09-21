@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import uz.mydonation.domain.response.ExceptionRes;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,8 +21,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<String> handler(BaseException e){
-        return new ResponseEntity<>(e.getMessage(), e.getStatus());
+    public ResponseEntity<ExceptionRes> handler(BaseException e){
+        return new ResponseEntity<>(new ExceptionRes(e.getMessage()), e.getStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -38,7 +39,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handler(Exception e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ExceptionRes> handler(Exception e){
+        return new ResponseEntity<>(new ExceptionRes(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

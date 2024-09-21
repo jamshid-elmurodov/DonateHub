@@ -1,12 +1,17 @@
 package uz.mydonation.service.widget;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uz.mydonation.domain.entity.WidgetEntity;
 import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.FileType;
+import uz.mydonation.domain.exception.BaseException;
 import uz.mydonation.repo.WidgetRepository;
 import uz.mydonation.service.file.FileService;
 import uz.mydonation.service.user.UserService;
@@ -14,8 +19,9 @@ import uz.mydonation.service.user.UserService;
 @Service
 @RequiredArgsConstructor
 public class WidgetServiceImpl implements WidgetService {
+    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
+
     private final WidgetRepository repo;
-    private final UserService userService;
     private final FileService cloudService;
 
     @Value("${default.donation.video.url}")
@@ -26,21 +32,56 @@ public class WidgetServiceImpl implements WidgetService {
 
     @Override
     public WidgetEntity create(UserEntity streamer) {
-        return repo.save(new WidgetEntity(streamer.getId(), videoUrl, audioUrl, 5));
+        log.info("Yangi widget yaratilyapti: streamerId - {}", streamer.getId());
+        WidgetEntity widget = new WidgetEntity(streamer.getId(), videoUrl, audioUrl, 5);
+        WidgetEntity savedWidget = repo.save(widget);
+        log.info("Widget yaratildi: {}", savedWidget);
+        return savedWidget;
     }
 
     @Override
     public void update(Long streamerId, MultipartFile videoFile, MultipartFile audioFile) {
+        log.info("Widget yangilanishi: streamerId - {}", streamerId);
+
         WidgetEntity donationSetting = repo.findByStreamerId(streamerId);
 
-        donationSetting.setVideoUrl(cloudService.uploadFile(videoFile, FileType.VIDEO));
-        donationSetting.setAudioUrl(cloudService.uploadFile(audioFile, FileType.AUDIO));
+        if (donationSetting == null) {
+            log.error("Widget topilmadi: streamerId - {}", streamerId);
+            throw new BaseException(
+                    "Widget topilmadi",
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        if (videoFile != null && !videoFile.isEmpty()) {
+            String videoUrl = cloudService.uploadFile(videoFile, FileType.VIDEO);
+            donationSetting.setVideoUrl(videoUrl);
+            log.info("Video URL yangilandi: {}", videoUrl);
+        }
+
+        if (audioFile != null && !audioFile.isEmpty()) {
+            String audioUrl = cloudService.uploadFile(audioFile, FileType.AUDIO);
+            donationSetting.setAudioUrl(audioUrl);
+            log.info("Audio URL yangilandi: {}", audioUrl);
+        }
 
         repo.save(donationSetting);
+        log.info("Widget yangilandi: {}", donationSetting);
     }
 
     @Override
     public WidgetEntity getDonationWidgetOfStreamer(Long streamerId) {
-        return repo.findByStreamerId(streamerId);
+        log.info("Widget olinmoqda: streamerId - {}", streamerId);
+        WidgetEntity widget = repo.findByStreamerId(streamerId);
+        if (widget == null) {
+            log.error("Widget topilmadi: streamerId - {}", streamerId);
+            throw new BaseException(
+                    "Widget topilmadi",
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        log.info("Widget topildi: {}", widget);
+        return widget;
     }
 }
+

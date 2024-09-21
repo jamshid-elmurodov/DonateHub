@@ -1,6 +1,7 @@
 package uz.mydonation.service.donation;
 
 import org.springframework.data.domain.Page;
+import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.PaymentMethod;
 import uz.mydonation.domain.response.FullStatisticRes;
 import uz.mydonation.domain.response.StatisticRes;
@@ -23,4 +24,6 @@ public interface DonationService {
     List<StatisticRes> getStatisticsForStreamer(Long streamerId, int days);
 
     FullStatisticRes getFullStatistic(Long streamerId, int days);
+
+    void testDonate(DonationReq donationReq, Long streamerId, UserEntity user);
 }

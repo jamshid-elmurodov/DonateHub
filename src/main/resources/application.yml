@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:bilmayman}
+    url: jdbc:postgresql://${DB_URL:localhost}:${DB_PORT:5432}/${DB_NAME:donatehub}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: DonateHub
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: "/swagger"
+  swagger-ui:
+    enabled: true
+
+server:
+  port: 8050
