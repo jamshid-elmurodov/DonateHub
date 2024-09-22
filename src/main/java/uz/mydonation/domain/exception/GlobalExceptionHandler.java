@@ -8,7 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import uz.mydonation.domain.response.ExceptionRes;
+import uz.mydonation.domain.model.ExceptionRes;
 
 import java.util.Map;
 import java.util.stream.Collectors;

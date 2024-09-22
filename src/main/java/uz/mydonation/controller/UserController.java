@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uz.mydonation.domain.model.PagedRes;
 import uz.mydonation.domain.projection.UserInfo;
-import uz.mydonation.domain.request.UpdateUserReq;
-import uz.mydonation.domain.response.ExceptionRes;
-import uz.mydonation.service.user.UserService;`
+import uz.mydonation.domain.request.UserUpdateReq;
+import uz.mydonation.domain.model.ExceptionRes;
+import uz.mydonation.service.user.UserService;
 
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
+@Tag(name = "User")
 public class UserController {
     private final UserService userService;
 
@@ -45,7 +47,7 @@ public class UserController {
 
     @Hidden
     @GetMapping("/s/{api}")
-    public ModelAn`dView showDonationPage(@PathVariable UUID api) {
+    public ModelAndView showDonationPage(@PathVariable UUID api) {
         ModelAndView modelAndView = new ModelAndView("donation");
         modelAndView.addObject("api", api);
         return modelAndView;
@@ -115,7 +117,7 @@ public class UserController {
     )
     @PutMapping("/{userId}")
     public void update(@PathVariable Long userId,
-                       @RequestPart UpdateUserReq updateReq,
+                       @RequestPart UserUpdateReq updateReq,
                        @RequestPart("profileImg") MultipartFile profileImg,
                        @RequestPart("bannerImg") MultipartFile bannerImg) {
         userService.update(userId, updateReq, profileImg, bannerImg);

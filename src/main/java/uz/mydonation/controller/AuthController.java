@@ -5,10 +5,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import uz.mydonation.domain.request.AuthReq;
-import uz.mydonation.domain.response.ExceptionRes;
+import uz.mydonation.domain.model.ExceptionRes;
 import uz.mydonation.domain.response.LoginRes;
 import uz.mydonation.service.auth.OAuth2;
 
@@ -18,6 +19,7 @@ import uz.mydonation.service.auth.OAuth2;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth")
 public class AuthController {
     private final OAuth2 oAuth2;
 

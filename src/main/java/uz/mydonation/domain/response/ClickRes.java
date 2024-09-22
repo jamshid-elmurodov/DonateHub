@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MirPayCompilationRes {
-    private String id;
-    private String summa;
-    private String status;
+public class ClickRes {
+
 }

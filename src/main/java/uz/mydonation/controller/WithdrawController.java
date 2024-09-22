@@ -2,6 +2,7 @@ package uz.mydonation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import uz.mydonation.domain.enums.WithdrawStatus;
@@ -15,6 +16,7 @@ import uz.mydonation.service.withdraw.WithdrawService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/withdraw")
+@Tag(name = "Withdraw")
 public class WithdrawController {
     private final WithdrawService withdrawService;
 

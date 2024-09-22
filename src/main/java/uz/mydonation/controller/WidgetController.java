@@ -2,6 +2,7 @@ package uz.mydonation.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,7 @@ import uz.mydonation.service.widget.WidgetService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/widget")
+@Tag(name = "Widget")
 public class WidgetController {
     private final WidgetService widgetService;
 

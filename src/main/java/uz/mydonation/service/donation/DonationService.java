@@ -3,15 +3,16 @@ package uz.mydonation.service.donation;
 import org.springframework.data.domain.Page;
 import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.PaymentMethod;
+import uz.mydonation.domain.response.CreateDonateRes;
 import uz.mydonation.domain.response.FullStatisticRes;
 import uz.mydonation.domain.response.StatisticRes;
 import uz.mydonation.domain.projection.DonationInfo;
-import uz.mydonation.domain.request.DonationReq;
+import uz.mydonation.domain.request.DonationCreateReq;
 
 import java.util.List;
 
 public interface DonationService {
-    String donate(DonationReq donateReq, Long streamerId);
+    CreateDonateRes donate(DonationCreateReq donateReq, Long streamerId);
 
     void complete(String body, PaymentMethod method);
 
@@ -25,5 +26,5 @@ public interface DonationService {
 
     FullStatisticRes getFullStatistic(Long streamerId, int days);
 
-    void testDonate(DonationReq donationReq, Long streamerId, UserEntity user);
+    void testDonate(DonationCreateReq donationCreateReq, Long streamerId, UserEntity user);
 }

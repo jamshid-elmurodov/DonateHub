@@ -2,7 +2,6 @@ package uz.mydonation.service.donation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -16,19 +15,20 @@ import uz.mydonation.domain.enums.PaymentMethod;
 import uz.mydonation.domain.exception.BaseException;
 import uz.mydonation.domain.model.*;
 import uz.mydonation.domain.projection.DonationInfo;
-import uz.mydonation.domain.request.DonationReq;
+import uz.mydonation.domain.request.ClickReq;
+import uz.mydonation.domain.request.DonationCreateReq;
+import uz.mydonation.domain.request.MirPayReq;
 import uz.mydonation.domain.response.*;
 import uz.mydonation.repo.DonationRepository;
-import uz.mydonation.service.payment.PaymentService;
+import uz.mydonation.service.payment.click.ClickService;
+import uz.mydonation.service.payment.mirpay.MirPayService;
 import uz.mydonation.utils.BotExecutor;
 import uz.mydonation.service.user.UserService;
 import uz.mydonation.service.widget.WidgetService;
-import uz.mydonation.utils.PaymentUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class DonationServiceImpl implements DonationService {
@@ -38,8 +38,8 @@ public class DonationServiceImpl implements DonationService {
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
     private final WidgetService widgetService;
-    private final PaymentService mirPayPaymentService;
-    private final PaymentService clickPaymentService;
+    private final MirPayService mirPayService;
+    private final ClickService clickService;
     private final BotExecutor botExecutor;
 
     public DonationServiceImpl(
@@ -47,22 +47,22 @@ public class DonationServiceImpl implements DonationService {
             UserService userService,
             SimpMessagingTemplate messagingTemplate,
             WidgetService widgetService,
-            @Qualifier("mirpay") PaymentService mirPayPaymentService,
-            @Qualifier("click") PaymentService clickPaymentService,
+            MirPayService mirPayService,
+            ClickService clickService,
             BotExecutor botExecutor
     ) {
         this.repo = repo;
         this.userService = userService;
         this.messagingTemplate = messagingTemplate;
         this.widgetService = widgetService;
-        this.mirPayPaymentService = mirPayPaymentService;
-        this.clickPaymentService = clickPaymentService;
+        this.mirPayService = mirPayService;
+        this.clickService = clickService;
         this.botExecutor = botExecutor;
     }
 
     @Transactional
     @Override
-    public String donate(DonationReq donateReq, Long streamerId) {
+    public CreateDonateRes donate(DonationCreateReq donateReq, Long streamerId) {
         log.info("Donat qabul qilinmoqda. Streamer ID: {}, Donat miqdori: {}", streamerId, donateReq.getAmount());
 
         UserEntity streamer = userService.findById(streamerId);
@@ -87,8 +87,8 @@ public class DonationServiceImpl implements DonationService {
                 .build();
 
         PaymentRes paymentRes = switch (donateReq.getMethod()) {
-            case CLICK -> clickPaymentService.create(donateReq.getAmount() + paymentInfo.getCommission());
-            case MIRPAY -> mirPayPaymentService.create(donateReq.getAmount() + paymentInfo.getCommission());
+            case CLICK -> clickService.create(donateReq.getAmount() + paymentInfo.getCommission());
+            case MIRPAY -> mirPayService.create(donateReq.getAmount() + paymentInfo.getCommission());
         };
 
         paymentInfo.setPaymentId(paymentRes.getId());
@@ -96,33 +96,17 @@ public class DonationServiceImpl implements DonationService {
 
         repo.save(donation);
 
-        return paymentRes.getPayinfo().getRedicet_url();
+        return new CreateDonateRes(paymentRes.getRedirectUrl());
     }
 
     @Override
     public void complete(String body, PaymentMethod method) {
         log.info("To'lov tugallanishi kutilmoqda, usul: {}", method);
 
-        switch (method){
-            case CLICK -> {
-                completeClick(body);
-            }
-            case MIRPAY -> {
-                completeMirPay(body);
-            }
-        }
-    }
-
-    private void completeClick(String body) {
-        log.info("CLICK to'lovining yakuniy jarayoni boshlangan");
-        log.info(body);
-    }
-
-    private void completeMirPay(String body) {
-        log.info("MIRPAY to'lovining yakuniy jarayoni boshlangan");
-
-        MirPayCompilationRes compilationRes = PaymentUtils.readBodyMirpay(body);
-        DonationEntity donation = getDonationByPaymentId(compilationRes);
+        DonationEntity donation = switch (method){
+            case CLICK -> clickComplete(body);
+            case MIRPAY -> mirPayComplete(body);
+        };
 
         if (donation.getCompleted()){
             throw new BaseException(
@@ -131,15 +115,27 @@ public class DonationServiceImpl implements DonationService {
             );
         }
 
-        if (Objects.equals("Muvaffaqiyatli", compilationRes.getStatus())) {
-            completeDonation(donation);
-            return;
-        }
+        completeDonation(donation);
+    }
 
-        throw new BaseException(
-                String.format("Donat summasi to'liq amalga oshirilmagan %s", compilationRes.getId()),
-                HttpStatus.BAD_REQUEST
-        );
+    private DonationEntity clickComplete(String body) {
+        DonationEntity donation;
+        ClickReq clickReq = clickService.readBody(body);
+
+        donation = getDonationByPaymentId(String.valueOf(clickReq.getClickTransId()));
+
+        clickService.complete(clickReq, donation.getPaymentInfo().getAmount());
+        return donation;
+    }
+
+    private DonationEntity mirPayComplete(String body) {
+        DonationEntity donation;
+        MirPayReq mirPayReq = mirPayService.readBody(body);
+
+        mirPayService.complete(mirPayReq);
+
+        donation = getDonationByPaymentId(mirPayReq.getId());
+        return donation;
     }
 
     private void completeDonation(DonationEntity donation) {
@@ -159,7 +155,6 @@ public class DonationServiceImpl implements DonationService {
         }
 
         log.info("Telegram botga xabar yuborilyapti: {}", donation.getStreamer().getChatId());
-
         botExecutor.sendDonationInfo(donation.getStreamer().getChatId(), donation);
     }
 
@@ -173,10 +168,10 @@ public class DonationServiceImpl implements DonationService {
                         donation.getPaymentInfo().getAmount(), widget.getVideoUrl(), widget.getAudioUrl()));
     }
 
-    private DonationEntity getDonationByPaymentId(MirPayCompilationRes compilationRes) {
-        log.info("To'lov ID orqali donatni topish: {}", compilationRes.getId());
+    private DonationEntity getDonationByPaymentId(String paymentId) {
+        log.info("To'lov ID orqali donatni topish: {}", paymentId);
 
-        return repo.findByPaymentInfoPaymentId(compilationRes.getId()).orElseThrow(
+        return repo.findByPaymentInfoPaymentId(paymentId).orElseThrow(
                 () -> new BaseException(
                         "Donation not found with this payment id",
                         HttpStatus.NOT_FOUND
@@ -184,7 +179,7 @@ public class DonationServiceImpl implements DonationService {
         );
     }
 
-    private Integer getCommission(DonationReq donateReq) {
+    private Float getCommission(DonationCreateReq donateReq) {
         log.info("Komissiya hisoblanmoqda: miqdor {}", donateReq.getAmount());
 
         return donateReq.getAmount() / 100 * 5;
@@ -234,7 +229,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public void testDonate(DonationReq donationReq, Long streamerId, UserEntity user) {
+    public void testDonate(DonationCreateReq donationCreateReq, Long streamerId, UserEntity user) {
         log.info("Test donat amalga oshirilmoqda. Streamer ID: {}, Foydalanuvchi ID: {}", streamerId, user.getId());
 
         UserEntity streamer = userService.findById(streamerId);
@@ -248,14 +243,14 @@ public class DonationServiceImpl implements DonationService {
             );
         }
 
-        log.info("Test donat streamga uzatilmoqda: {}", donationReq);
+        log.info("Test donat streamga uzatilmoqda: {}", donationCreateReq);
 
         executeToStream(new DonationEntity(
                 streamer,
-                donationReq.getDonaterName(),
-                donationReq.getMessage(),
+                donationCreateReq.getDonaterName(),
+                donationCreateReq.getMessage(),
                 true,
-                new PaymentInfo("test", donationReq.getAmount(), 0)
+                new PaymentInfo("test", donationCreateReq.getAmount(), 0f)
         ));
     }
 }

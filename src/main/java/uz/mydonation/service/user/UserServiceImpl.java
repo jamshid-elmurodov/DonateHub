@@ -12,7 +12,7 @@ import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.FileType;
 import uz.mydonation.domain.exception.BaseException;
 import uz.mydonation.domain.projection.UserInfo;
-import uz.mydonation.domain.request.UpdateUserReq;
+import uz.mydonation.domain.request.UserUpdateReq;
 import uz.mydonation.repo.UserRepository;
 import uz.mydonation.service.file.FileService;
 
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(Long chatId, UpdateUserReq updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+    public void update(Long chatId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
         log.info("Foydalanuvchi ma'lumotlarini yangilash: ID - {}", chatId);
         UserEntity user = findById(chatId);
 
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void recalculateStreamerBalance(Long streamerId, Integer amount) {
+    public void recalculateStreamerBalance(Long streamerId, Float amount) {
         log.info("Streamer balansini qayta hisoblash: ID - {}, miqdor - {}", streamerId, amount);
         UserEntity user = findById(streamerId);
         user.setBalance(user.getBalance() + amount);

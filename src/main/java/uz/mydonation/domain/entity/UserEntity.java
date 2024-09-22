@@ -53,7 +53,9 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     private Boolean enable;
 
-    private Integer balance;
+    private Float minDonationAmount;
+
+    private Float balance;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

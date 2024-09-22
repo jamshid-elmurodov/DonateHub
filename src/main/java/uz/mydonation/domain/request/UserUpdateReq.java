@@ -1,18 +1,19 @@
 package uz.mydonation.domain.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.mydonation.domain.enums.PaymentMethod;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DonationReq {
-    private String donaterName;
-    private String message;
-    private Integer amount;
-    private PaymentMethod method;
+public class UserUpdateReq {
+    @NotBlank
+    private String description;
+
+    @NotBlank
+    private String channelUrl;
 }

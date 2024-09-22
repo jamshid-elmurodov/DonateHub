@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.projection.UserInfo;
-import uz.mydonation.domain.request.UpdateUserReq;
+import uz.mydonation.domain.request.UserUpdateReq;
 
 public interface UserService {
     UserInfo findByChannelName(String channelName);
@@ -17,9 +17,9 @@ public interface UserService {
 
     UserEntity findById(Long chatId);
 
-    void recalculateStreamerBalance(Long streamerId, Integer amount);
+    void recalculateStreamerBalance(Long streamerId, Float amount);
 
-    void update(Long userId, UpdateUserReq updateReq, MultipartFile profileImg, MultipartFile bannerImg);
+    void update(Long userId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg);
 
     void enable(Long streamerId);
 

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,9 @@ import uz.mydonation.domain.entity.UserEntity;
 import uz.mydonation.domain.enums.PaymentMethod;
 import uz.mydonation.domain.model.PagedRes;
 import uz.mydonation.domain.projection.DonationInfo;
-import uz.mydonation.domain.request.DonationReq;
-import uz.mydonation.domain.response.ExceptionRes;
+import uz.mydonation.domain.request.DonationCreateReq;
+import uz.mydonation.domain.model.ExceptionRes;
+import uz.mydonation.domain.response.CreateDonateRes;
 import uz.mydonation.domain.response.FullStatisticRes;
 import uz.mydonation.domain.response.StatisticRes;
 import uz.mydonation.service.donation.DonationService;
@@ -33,6 +35,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/donation")
+@Tag(name = "donation")
 public class DonationController {
     private final DonationService donationService;
     private final Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
@@ -66,7 +69,7 @@ public class DonationController {
             },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Donatsiya so'rov ma'lumotlari",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationReq.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationCreateReq.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Muvaffaqiyatli donatsiya", content = @Content(mediaType = "application/json", schema = @Schema(type = "string"))),
@@ -74,12 +77,12 @@ public class DonationController {
                     @ApiResponse(responseCode = "400", description = "Noto'g'ri so'rov ma'lumotlari, Donat summasi no'tog'ri", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
             }
     )
-    public ResponseEntity<String> donate(
+    public ResponseEntity<CreateDonateRes> donate(
             @PathVariable Long streamerId,
-            @RequestBody @Valid DonationReq donationReq
+            @RequestBody @Valid DonationCreateReq donationCreateReq
     ) {
-        String response = donationService.donate(donationReq, streamerId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        CreateDonateRes donate = donationService.donate(donationCreateReq, streamerId);
+        return new ResponseEntity<>(donate, HttpStatus.CREATED);
     }
 
     @GetMapping("/{streamerId}")
@@ -192,7 +195,7 @@ public class DonationController {
             },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Donatsiya so'rov ma'lumotlari",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationReq.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationCreateReq.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
@@ -200,9 +203,9 @@ public class DonationController {
     )
     public void testDonate(
             @PathVariable Long streamerId,
-            @RequestBody @Valid DonationReq donationReq,
+            @RequestBody @Valid DonationCreateReq donationCreateReq,
             @AuthenticationPrincipal UserEntity user
     ) {
-        donationService.testDonate(donationReq, streamerId, user);
+        donationService.testDonate(donationCreateReq, streamerId, user);
     }
 }

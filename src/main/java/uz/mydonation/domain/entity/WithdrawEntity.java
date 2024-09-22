@@ -1,6 +1,8 @@
 package uz.mydonation.domain.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +22,8 @@ public class WithdrawEntity extends BaseEntity {
 
     private String cardNumber;
 
-    private Integer amount;
+    private Float amount;
 
+    @Enumerated(EnumType.STRING)
     private WithdrawStatus status;
 }

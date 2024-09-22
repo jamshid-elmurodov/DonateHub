@@ -12,10 +12,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AuthReq {
     private Long id;
+
     @JsonProperty("first_name")
     private String firstName;
+
     private String username;
+
     @JsonProperty("auth_date")
     private Long authDate;
+
     private String hash;
 }

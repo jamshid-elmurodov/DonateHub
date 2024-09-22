@@ -1,4 +1,4 @@
-package uz.mydonation.service.payment;
+package uz.mydonation.service.payment.mirpay;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,16 +10,18 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uz.mydonation.domain.exception.BaseException;
-import uz.mydonation.domain.response.MirPayCompilationRes;
+import uz.mydonation.domain.request.MirPayReq;
+import uz.mydonation.domain.response.MirPayRes;
 import uz.mydonation.domain.response.PaymentRes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-@Service(value = "mirpay")
+@Service
 @RequiredArgsConstructor
-public class MirPayService implements PaymentService {
+public class MirPayServiceImpl implements MirPayService {
     private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");
 
     private final RestTemplate restTemplate;
@@ -32,7 +34,7 @@ public class MirPayService implements PaymentService {
     private String apiKey;
 
     @Override
-    public PaymentRes create(Integer amount){
+    public PaymentRes create(Float amount){
         String token = getToken().token;
 
         String uri = String.format("https://mirpay.uz/api/create-pay?summa=%s&info_pay=%s", amount, 1001);
@@ -47,7 +49,9 @@ public class MirPayService implements PaymentService {
             ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                return objectMapper.readValue(response.getBody(), PaymentRes.class);
+                MirPayRes mirPayRes = objectMapper.readValue(response.getBody(), MirPayRes.class);
+
+                return new PaymentRes(mirPayRes.getId(), mirPayRes.getPayinfo().getRedirectUrl());
             }
 
             throw new BaseException(
@@ -76,7 +80,6 @@ public class MirPayService implements PaymentService {
                 return objectMapper.readValue(response.getBody(), IToken.class);
             }
 
-
             throw new BaseException(
                     String.format("Token olishda xatolik yuz berdi ( %s ) ", response.getBody()),
                     HttpStatus.INTERNAL_SERVER_ERROR
@@ -86,6 +89,39 @@ public class MirPayService implements PaymentService {
         } catch (Exception e){
             throw new BaseException("Error mirpay token", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+    public void complete(MirPayReq mirPayReq) {
+        log.info("MIRPAY to'lovining tasdiqlash jarayoni boshlangan");
+
+        if (!Objects.equals("Muvaffaqiyatli", mirPayReq.getStatus())) {
+            throw new BaseException(
+                    String.format("Donat summasi to'liq amalga oshirilmagan %s", mirPayReq.getId()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    @Override
+    public MirPayReq readBody(String body) {
+        log.info("MIRPAY to'lov ma'lumotlari o'qilmoqda");
+
+        MirPayReq mirPayReq = new MirPayReq();
+
+        String[] arr = body.split("&");
+
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = arr[i].split("=")[1];
+        }
+
+        List<String> list = new ArrayList<>(Arrays.asList(arr));
+
+        mirPayReq.setId(list.get(0));
+        mirPayReq.setSumma(Float.valueOf(list.get(1)));
+        mirPayReq.setStatus(list.get(2).substring(0, list.get(2).length() - 1));
+
+        return mirPayReq;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

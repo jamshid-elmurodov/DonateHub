@@ -9,9 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FullStatisticRes {
-    private Integer donatesCount;
-    private Float donatesAmount;
-    private Float withdrawsAmount;
-    private Float existAmount;
+public class CreateDonateRes {
+    private String redirectUrl;
 }

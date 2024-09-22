@@ -12,7 +12,7 @@ import lombok.*;
 public class PaymentInfo {
     private String paymentId;
 
-    private Integer amount;
+    private Float amount;
 
-    private Integer commission;
+    private Float commission;
 }
