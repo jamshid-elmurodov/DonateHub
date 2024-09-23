@@ -13,7 +13,7 @@ services:
     depends_on:
       - postgres-instance
     environment:
-      DB_URL: postgres-instance
+      DB_URL:
       DB_USERNAME: postgres
       DB_PASSWORD: 1111
     ports:

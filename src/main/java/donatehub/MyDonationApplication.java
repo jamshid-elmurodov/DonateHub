@@ -1,0 +1,11 @@
+package donatehub;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MyDonationApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyDonationApplication.class, args);
+    }
+}
