@@ -1,5 +1,6 @@
 package donatehub.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,20 +11,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import donatehub.domain.enums.UserRole;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
 @Entity(name = "users_table")
-
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEntity extends BaseEntity implements UserDetails {
-    @Column(unique = true)
+    @Column(unique = true, name = "chat_id")
     private Long chatId;
 
+    @Column(name = "first_name")
     private String firstName;
 
     @Column(unique = true)
@@ -31,13 +33,16 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     private String description;
 
+    @Column(name = "channel_url")
     private String channelUrl;
 
-    @Column(unique = true)
+    @Column(unique = true, name = "channel_name")
     private String channelName;
 
+    @Column(name = "profile_img_url")
     private String profileImgUrl;
 
+    @Column(name = "banner_img_url")
     private String bannerImgUrl;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +54,11 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     private Boolean enable;
 
+    @Column(name = "last_online_at")
+    @JsonFormat(pattern = "dd:mm:yyyy hh:MM")
+    private LocalDateTime lastOnlineAt;
+
+    @Column(name = "min_donation_amount")
     private Float minDonationAmount;
 
     private Float balance;

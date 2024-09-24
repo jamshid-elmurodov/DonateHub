@@ -17,6 +17,8 @@ import donatehub.domain.request.UserUpdateReq;
 import donatehub.repo.UserRepository;
 import donatehub.service.file.FileService;
 
+import static donatehub.domain.enums.UserRole.STREAMER;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -43,13 +45,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserInfo> getUsersByEnableState(Boolean getEnables, int page, int size) {
         log.info("Foydalanuvchilarni faollik holati bo'yicha qidirish: faol - {}, sahifa - {}, o'lcham - {}", getEnables, page, size);
-        return repo.getAllByEnable(getEnables, PageRequest.of(page, size));
+        return repo.getAllByEnableAndRole(getEnables, PageRequest.of(page, size), STREAMER);
     }
 
     @Override
     public Page<UserInfo> searchUsers(String text, int page, int size) {
         log.info("Foydalanuvchilarni qidirish: matn - {}, sahifa - {}, o'lcham - {}", text, page, size);
-        return repo.getAllByFirstNameLikeIgnoreCaseOrUsernameLikeIgnoreCase(text, text, PageRequest.of(page, size));
+        return repo.getAllByFirstNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(text, text, PageRequest.of(page, size));
     }
 
     @Override
@@ -143,6 +145,14 @@ public class UserServiceImpl implements UserService {
         repo.save(user);
     }
 
-
+//    @Override
+//    public List<UserStatisticRes> getStatisticsOfRegister(int days) {
+//        return repo.getStatisticOfRegister(LocalDate.now().minusDays(days));
+//    }
+//
+//    @Override
+//    public List<UserStatisticRes> getStatisticOfLastOnline(int days) {
+//        return repo.getStatisticOfLastOnline(LocalDate.now().minusDays(days));
+//    }
 }
 

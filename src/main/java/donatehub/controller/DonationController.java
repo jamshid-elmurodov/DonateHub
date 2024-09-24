@@ -24,7 +24,7 @@ import donatehub.domain.request.DonationCreateReq;
 import donatehub.domain.model.ExceptionRes;
 import donatehub.domain.response.CreateDonateRes;
 import donatehub.domain.response.FullStatisticRes;
-import donatehub.domain.response.StatisticRes;
+import donatehub.domain.response.DonationStatisticRes;
 import donatehub.service.donation.DonationService;
 
 import java.util.List;
@@ -40,6 +40,7 @@ public class DonationController {
     private final DonationService donationService;
     private final Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
 
+    @CrossOrigin(origins = {})
     @Hidden
     @PostMapping("/complete/{method}")
     @Operation(
@@ -138,10 +139,10 @@ public class DonationController {
                     @Parameter(name = "days", description = "Statistikalar uchun kunlar soni", required = true)
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Ma'mur uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StatisticRes.class)))
+                    @ApiResponse(responseCode = "200", description = "Ma'mur uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatisticRes.class)))
             }
     )
-    public List<StatisticRes> getAllStatistics(@RequestParam int days) {
+    public List<DonationStatisticRes> getAllStatistics(@RequestParam int days) {
         return donationService.getStatisticsForAdmin(days);
     }
 
@@ -154,11 +155,11 @@ public class DonationController {
                     @Parameter(name = "days", description = "Statistikalar uchun kunlar soni", required = true)
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Streamer uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StatisticRes.class))),
+                    @ApiResponse(responseCode = "200", description = "Streamer uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatisticRes.class))),
                     @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
             }
     )
-    public List<StatisticRes> getStatisticsOfStreamer(
+    public List<DonationStatisticRes> getStatisticsOfStreamer(
             @PathVariable Long streamerId,
             @RequestParam int days
     ) {

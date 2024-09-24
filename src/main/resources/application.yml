@@ -1,9 +1,11 @@
-
 spring:
   datasource:
-    username: ${DB_USERNAME:jamshid}
-    password: ${DB_PASSWORD:AVNS_kzaid81T3rQtHewBGW0}
+    username: ${DB_USERNAME:doadmin}
+    password: ${DB_PASSWORD:AVNS_lyaRcf1qQoH1oWGX86J}
     url: ${DB_URL:jdbc:postgresql://db-postgresql-webdevs-do-user-17849782-0.i.db.ondigitalocean.com:25060/donatehub}
+#    username: ${DB_USERNAME:postgres}
+#    password: ${DB_PASSWORD:bilmayman}
+#    url: ${DB_URL:jdbc:postgresql://localhost:5432/donatehub}
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
@@ -39,7 +41,7 @@ click:
   merchant:
     id: 28151
   return:
-    url: https://mighty-weasel-privately-ngrok-free-app/api/v1/donation/comlete/CLICK
+    url: ""
 
 server:
   port: 8050
@@ -47,7 +49,7 @@ server:
 jwt:
   secret:
     key: ty1fiu23uft12vi3kl123kjkjnkl123njn213ugyuovbj312
-  hours: 2
+  hours: 111
 
 bot:
   token: 7131847164:AAFmhXirKlFAFw7oIERA2YALge8pbg42PwQ

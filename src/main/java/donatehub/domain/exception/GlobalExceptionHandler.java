@@ -1,10 +1,15 @@
 package donatehub.domain.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,8 +39,23 @@ public class GlobalExceptionHandler {
                                 DefaultMessageSourceResolvable::getDefaultMessage
                         )
                 ),
-                e.getStatusCode()
+                HttpStatus.BAD_REQUEST
         );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ExceptionRes> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>(new ExceptionRes(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body("Invalid input: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ExceptionRes> handler(ExpiredJwtException e){
+        return new ResponseEntity<>(new ExceptionRes("Token eskirgan"), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)

@@ -20,7 +20,7 @@ public interface UserInfoForDonate {
 
     String getBannerImgUrl();
 
-    Boolean isOnline();
+    Boolean getOnline();
 
     Float getMinDonationAmount();
 }

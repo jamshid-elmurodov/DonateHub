@@ -1,5 +1,6 @@
 package donatehub.domain.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
@@ -10,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Embeddable
 public class PaymentInfo {
+    @Column(name = "payment_id")
     private String paymentId;
 
     private Float amount;

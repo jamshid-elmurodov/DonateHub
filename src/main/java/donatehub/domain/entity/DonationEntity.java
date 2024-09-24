@@ -1,5 +1,6 @@
 package donatehub.domain.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -17,6 +18,7 @@ public class DonationEntity extends BaseEntity {
     @ManyToOne
     private UserEntity streamer;
 
+    @Column(name = "donater_name")
     private String donaterName;
 
     private String message;

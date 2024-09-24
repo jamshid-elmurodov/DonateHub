@@ -1,11 +1,14 @@
 package donatehub.service.user;
 
+import donatehub.domain.response.UserStatisticRes;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import donatehub.domain.entity.UserEntity;
 import donatehub.domain.projection.UserInfoForDonate;
 import donatehub.domain.projection.UserInfo;
 import donatehub.domain.request.UserUpdateReq;
+
+import java.util.List;
 
 public interface UserService {
     UserInfoForDonate findByChannelName(String channelName);
@@ -29,4 +32,8 @@ public interface UserService {
     void offline(Long streamerId);
 
     void online(Long streamerId);
+
+//    List<UserStatisticRes> getStatisticsOfRegister(int days);
+//
+//    List<UserStatisticRes> getStatisticOfLastOnline(int days);
 }

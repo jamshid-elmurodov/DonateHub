@@ -17,6 +17,7 @@ import donatehub.service.user.UserService;
 import donatehub.service.widget.WidgetService;
 import donatehub.utils.TelegramUtils;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,6 +54,8 @@ public class TelegramAuthServiceService implements AuthService {
         try {
             user = userService.findById(authReq.getId());
 
+            user.setLastOnlineAt(LocalDateTime.now());
+
             user = checkForUpdates(user, authReq);
 
             log.info("Foydalanuvchi topildi: {}", user);
@@ -68,6 +71,7 @@ public class TelegramAuthServiceService implements AuthService {
                     .balance(0f)
                     .role(UserRole.STREAMER)
                     .api(UUID.randomUUID().toString())
+                    .lastOnlineAt(LocalDateTime.now())
                     .build());
 
             widgetService.create(user);

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import donatehub.domain.entity.DonationEntity;
 import donatehub.domain.response.FullStatisticRes;
-import donatehub.domain.response.StatisticRes;
+import donatehub.domain.response.DonationStatisticRes;
 import donatehub.domain.projection.DonationInfo;
 
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ public interface DonationRepository extends JpaRepository<DonationEntity, Long> 
                     "ORDER BY day",
             nativeQuery = true
     )
-    List<StatisticRes> getAllMonthlyStatistics(@Param("date") LocalDate date);
+    List<DonationStatisticRes> getAllMonthlyStatistics(@Param("date") LocalDate date);
 
     @Query(
             value = "select dt.created_at::date, sum(dt.amount) " +
@@ -41,7 +41,7 @@ public interface DonationRepository extends JpaRepository<DonationEntity, Long> 
                     "limit :limit",
             nativeQuery = true
     )
-    List<StatisticRes> getAllStatistics(@Param("date") LocalDate date, @Param("limit") int limit);
+    List<DonationStatisticRes> getAllStatistics(@Param("date") LocalDate date, @Param("limit") int limit);
 
     @Query(
             value = "select dt.created_at::date, sum(dt.amount) " +
@@ -52,7 +52,7 @@ public interface DonationRepository extends JpaRepository<DonationEntity, Long> 
                     "limit :limit",
             nativeQuery = true
     )
-    List<StatisticRes> getStatisticsOfStreamer(@Param("id") Long streamerId, @Param("date") LocalDate date, @Param("limit") int limit);
+    List<DonationStatisticRes> getStatisticsOfStreamer(@Param("id") Long streamerId, @Param("date") LocalDate date, @Param("limit") int limit);
 
     @Query(
             value = "select count(dt), sum(dt.amount), sum(wt.amount), (select at.amount from accounts_table at where at.id = :stid) " +

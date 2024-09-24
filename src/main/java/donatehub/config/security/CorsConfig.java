@@ -14,10 +14,9 @@ public class CorsConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://full-wolf-electric.ngrok-free.app/")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowedHeaders("*");
             }
         };
     }

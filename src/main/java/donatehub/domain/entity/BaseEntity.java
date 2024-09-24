@@ -23,8 +23,10 @@ public abstract class BaseEntity extends AuditingEntityListener {
     private Long id;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "update_at")
     private LocalDateTime updateAt;
 }

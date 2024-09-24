@@ -5,7 +5,7 @@ import donatehub.domain.entity.UserEntity;
 import donatehub.domain.enums.PaymentMethod;
 import donatehub.domain.response.CreateDonateRes;
 import donatehub.domain.response.FullStatisticRes;
-import donatehub.domain.response.StatisticRes;
+import donatehub.domain.response.DonationStatisticRes;
 import donatehub.domain.projection.DonationInfo;
 import donatehub.domain.request.DonationCreateReq;
 
@@ -20,9 +20,9 @@ public interface DonationService {
 
     Page<DonationInfo> getAllDonations(int page, int size, int days);
 
-    List<StatisticRes> getStatisticsForAdmin(int days);
+    List<DonationStatisticRes> getStatisticsForAdmin(int days);
 
-    List<StatisticRes> getStatisticsForStreamer(Long streamerId, int days);
+    List<DonationStatisticRes> getStatisticsForStreamer(Long streamerId, int days);
 
     FullStatisticRes getFullStatistic(Long streamerId, int days);
 

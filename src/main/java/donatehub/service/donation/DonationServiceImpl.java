@@ -15,12 +15,10 @@ import donatehub.domain.entity.UserEntity;
 import donatehub.domain.entity.WidgetEntity;
 import donatehub.domain.enums.PaymentMethod;
 import donatehub.domain.exception.BaseException;
-import uz.mydonation.domain.model.*;
 import donatehub.domain.projection.DonationInfo;
 import donatehub.domain.request.ClickReq;
 import donatehub.domain.request.DonationCreateReq;
 import donatehub.domain.request.MirPayReq;
-import uz.mydonation.domain.response.*;
 import donatehub.repo.DonationRepository;
 import donatehub.service.payment.click.ClickService;
 import donatehub.service.payment.mirpay.MirPayService;
@@ -204,7 +202,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<StatisticRes> getStatisticsForAdmin(int days) {
+    public List<DonationStatisticRes> getStatisticsForAdmin(int days) {
         log.info("Administrator uchun {} kunlik statistika so'ralmoqda", days);
 
         if (days > 30){
@@ -215,7 +213,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<StatisticRes> getStatisticsForStreamer(Long streamerId, int days) {
+    public List<DonationStatisticRes> getStatisticsForStreamer(Long streamerId, int days) {
         log.info("Streamer ID: {} uchun {} kunlik statistika so'ralmoqda", streamerId, days);
 
         UserEntity user = userService.findById(streamerId);

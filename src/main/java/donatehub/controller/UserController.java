@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -130,17 +133,18 @@ public class UserController {
             parameters = @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true)
     )
     @PutMapping("/enable/{streamerId}")
-    public void enable(@PathVariable Long streamerId){
+    public void enable(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
         userService.enable(streamerId);
     }
 
     @Operation(
             summary = "Streamerni o'chirish",
+            tags = {"ADMIN"},
             description = "Berilgan streamer identifikatori asosida streamer statusini o'chiradi.",
             parameters = @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true)
     )
     @PutMapping("/disable/{streamerId}")
-    public void disable(@PathVariable Long streamerId){
+    public void disable(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
         userService.disable(streamerId);
     }
 }

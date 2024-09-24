@@ -1,9 +1,6 @@
 package donatehub.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +17,7 @@ public class WithdrawEntity extends BaseEntity {
     @ManyToOne
     private UserEntity streamer;
 
+    @Column(name = "card_number")
     private String cardNumber;
 
     private Float amount;

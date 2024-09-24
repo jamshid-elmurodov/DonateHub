@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StatisticRes {
+public class DonationStatisticRes {
     private LocalDate day;
     private Integer amount;
 }
