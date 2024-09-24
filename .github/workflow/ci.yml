@@ -14,9 +14,9 @@ jobs:
 
       - name: Set up environment variables
         run: |
-          echo "DATABASE_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DATABASE_USERNAME_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DATABASE_USERNAME_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
           echo "MIRPAY_KASSA_ID=${{ secrets.MIRPAY_KASSA_ID }}" >> $GITHUB_ENV
           echo "MIRPAY_API_KEY=${{ secrets.MIRPAY_API_KEY }}" >> $GITHUB_ENV
           echo "CLICK_SERVICE_ID=${{ secrets.CLICK_SERVICE_ID }}" >> $GITHUB_ENV

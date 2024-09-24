@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: ${DB_USERNAME:doadmin}
-    password: ${DB_PASSWORD:AVNS_lyaRcf1qQoH1oWGX86J}
-    url: ${DB_URL:jdbc:postgresql://db-postgresql-webdevs-do-user-17849782-0.i.db.ondigitalocean.com:25060/donatehub}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
 #    username: ${DB_USERNAME:postgres}
 #    password: ${DB_PASSWORD:bilmayman}
 #    url: ${DB_URL:jdbc:postgresql://localhost:5432/donatehub}
