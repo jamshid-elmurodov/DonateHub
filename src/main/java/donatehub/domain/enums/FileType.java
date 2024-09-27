@@ -1,6 +1,7 @@
 package donatehub.domain.enums;
 
 import lombok.Getter;
+import org.springframework.http.MediaType;
 
 import java.util.Set;
 
@@ -8,7 +9,7 @@ import java.util.Set;
 public enum FileType {
     VIDEO(Set.of("mp4", "mov")),
     AUDIO(Set.of("mp3", "mpeg", "wav")),
-    IMAGE(Set.of("png", "jpeg", "jpg"));
+    IMAGE(Set.of("png", "jpeg", "jpg", "svg"));
 
     private final Set<String> types;
 

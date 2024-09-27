@@ -1,11 +1,11 @@
 package donatehub.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import donatehub.domain.request.AuthReq;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +14,9 @@ import donatehub.domain.enums.UserRole;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 @Entity(name = "users_table")
 @Builder
@@ -21,9 +24,18 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity extends BaseEntity implements UserDetails {
-    @Column(unique = true, name = "chat_id")
-    private Long chatId;
+public class UserEntity implements UserDetails {
+    @Id
+    @Column(unique = true)
+    private Long id;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
 
     @Column(name = "first_name")
     private String firstName;
@@ -61,6 +73,9 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "min_donation_amount")
     private Float minDonationAmount;
 
+    @Column(name = "full_registered_at")
+    private LocalDateTime fullRegisteredAt;
+
     private Float balance;
 
     @Override
@@ -73,7 +88,17 @@ public class UserEntity extends BaseEntity implements UserDetails {
         return null;
     }
 
-    public Long getId() {
-        return chatId;
+    public static UserEntity from(AuthReq authReq){
+        return UserEntity.builder()
+                .id(authReq.getId())
+                .online(false)
+                .enable(false)
+                .firstName(authReq.getFirstName())
+                .username(authReq.getUsername())
+                .balance(0f)
+                .role(UserRole.NOT_FULL_REGISTERED)
+                .api(UUID.randomUUID().toString())
+                .lastOnlineAt(LocalDateTime.now())
+                .build();
     }
 }

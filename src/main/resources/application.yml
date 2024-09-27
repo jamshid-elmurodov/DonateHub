@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    url: ${DB_URL}
+    username: ${DB_USERNAME:doadmin}
+    password: ${DB_PASSWORD:AVNS_lyaRcf1qQoH1oWGX86J}
+    url: ${DB_URL:jdbc:postgresql://db-postgresql-webdevs-do-user-17849782-0.i.db.ondigitalocean.com:25060/donatehub}
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
@@ -22,8 +22,8 @@ springdoc:
     enabled: true
 
 mirpay:
-  kassa_id: ${MIRPAY_KASSA_ID}
-  api_key: ${MIRPAY_API_KEY}
+  kassa_id: 1304
+  api_key: 0acff03cbd4fca201735b13e4754fb4c
 
 default:
   donation:
@@ -34,20 +34,23 @@ default:
 
 click:
   service:
-    id: ${CLICK_SERVICE_ID}
+    id: 37162
   merchant:
-    id: ${CLICK_MERCHANT_ID}
+    id: 28151
   return:
     url: ""
 
 server:
-  port: 8050
+  port: 8060
 
 jwt:
   secret:
-    key: ${JWT_SECRET_KEY}
-  hours: 111
+    key: ty1fiu23uft12vi3kl123kjkjnkl123njn213ugyuovbj312
+  access:
+    hours: 1
+  refresh:
+    hours: 100
 
 bot:
-  token: ${BOT_TOKEN}
+  token: 7131847164:AAFmhXirKlFAFw7oIERA2YALge8pbg42PwQ
   chatId: 1870689122

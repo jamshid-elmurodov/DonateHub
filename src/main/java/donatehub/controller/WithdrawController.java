@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import donatehub.domain.enums.WithdrawStatus;
 import donatehub.domain.model.PagedRes;
@@ -19,6 +21,7 @@ import donatehub.service.withdraw.WithdrawService;
 @Tag(name = "Withdraw")
 public class WithdrawController {
     private final WithdrawService withdrawService;
+    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
 
     @Operation(
             summary = "Foydalanuvchilar uchun pul chiqarish so'rovini yaratadi",
@@ -37,17 +40,29 @@ public class WithdrawController {
     }
 
     @Operation(
-            summary = "Admin uchun withdraw statusini o'zgartiradi",
+            summary = "Admin uchun withdraw statusini complete'ga o'zgartiradi",
             description = "Ushbu metod withdraw so'rovining statusini yangilaydi.",
             parameters = {
                     @Parameter(name = "withdrawId", description = "Withdraw identifikatori", required = true),
-                    @Parameter(name = "status", description = "Yangi status", required = true)
             }
     )
-    @PutMapping("/{withdrawId}")
-    public void setStatus(@PathVariable Long withdrawId,
-                          @RequestParam WithdrawStatus status){
-        withdrawService.setStatus(withdrawId, status);
+    @PutMapping("/complete/{withdrawId}")
+    public void setStatusToComplete(@PathVariable Long withdrawId){
+        log.info("Complete uchun so'rov {}", withdrawId);
+        withdrawService.setStatus(withdrawId, WithdrawStatus.COMPLETED);
+    }
+
+    @Operation(
+            summary = "Admin uchun withdraw statusini cancel'ga o'zgartiradi",
+            description = "Ushbu metod withdraw so'rovining statusini yangilaydi.",
+            parameters = {
+                    @Parameter(name = "withdrawId", description = "Withdraw identifikatori", required = true),
+            }
+    )
+    @PutMapping("/cancel/{withdrawId}")
+    public void setStatusCanceled(@PathVariable Long withdrawId){
+        log.info("Cancel uchun so'rov {}", withdrawId);
+        withdrawService.setStatus(withdrawId, WithdrawStatus.CANCELED);
     }
 
     @Operation(
@@ -56,7 +71,6 @@ public class WithdrawController {
             parameters = {
                     @Parameter(name = "page", description = "Sahifa raqami", required = true),
                     @Parameter(name = "size", description = "Sahifa o'lchami", required = true),
-                    @Parameter(name = "days", description = "So'rovlar uchun vaqt oralig'i (kunlarda)", required = true),
                     @Parameter(name = "status", description = "Withdraw statusi", required = true)
             }
     )
@@ -64,9 +78,8 @@ public class WithdrawController {
     public PagedRes<WithdrawInfo> getWithdrawsByStatus(
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam int days,
             @RequestParam WithdrawStatus status){
-        return new PagedRes<>(withdrawService.getWithdrawsByStatus(page, size, days, status));
+        return new PagedRes<>(withdrawService.getWithdrawsByStatus(page, size, status));
     }
 
     @Operation(
@@ -76,7 +89,6 @@ public class WithdrawController {
                     @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true),
                     @Parameter(name = "page", description = "Sahifa raqami", required = true),
                     @Parameter(name = "size", description = "Sahifa o'lchami", required = true),
-                    @Parameter(name = "days", description = "So'rovlar uchun vaqt oralig'i (kunlarda)", required = true),
                     @Parameter(name = "status", description = "Withdraw statusi", required = true)
             }
     )
@@ -85,8 +97,7 @@ public class WithdrawController {
             @PathVariable Long streamerId,
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam int days,
             @RequestParam WithdrawStatus status){
-        return new PagedRes<>(withdrawService.getWithdrawsOfStreamerByStatus(streamerId, page, size, days, status));
+        return new PagedRes<>(withdrawService.getWithdrawsOfStreamerByStatus(streamerId, page, size, status));
     }
 }

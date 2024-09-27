@@ -12,7 +12,7 @@ import donatehub.domain.entity.UserEntity;
 import donatehub.domain.enums.FileType;
 import donatehub.domain.exception.BaseException;
 import donatehub.repo.WidgetRepository;
-import donatehub.service.file.FileService;
+import donatehub.service.cloud.CloudService;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class WidgetServiceImpl implements WidgetService {
     private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
 
     private final WidgetRepository repo;
-    private final FileService cloudService;
+    private final CloudService cloudService;
 
     @Value("${default.donation.video.url}")
     private String videoUrl;

@@ -2,5 +2,7 @@ package donatehub.domain.enums;
 
 public enum UserRole {
     ADMIN,
-    STREAMER
+    STREAMER,
+    NOT_FULL_REGISTERED,
+    NOT_ENABLED
 }

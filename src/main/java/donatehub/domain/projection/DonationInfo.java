@@ -16,5 +16,5 @@ public interface DonationInfo {
 
     String getMessage();
 
-    Integer getAmount();
+    Float getAmount();
 }

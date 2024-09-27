@@ -27,7 +27,6 @@ import donatehub.service.user.UserService;
 import donatehub.service.widget.WidgetService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -144,9 +143,9 @@ public class DonationServiceImpl implements DonationService {
         donation.setCompleted(true);
         repo.save(donation);
 
-        log.info("Streamer balansini qayta hisoblash: {}", donation.getStreamer().getChatId());
+        log.info("Streamer balansini qayta hisoblash: {}", donation.getStreamer().getId());
 
-        userService.recalculateStreamerBalance(donation.getStreamer().getChatId(), donation.getPaymentInfo().getAmount());
+        userService.recalculateStreamerBalance(donation.getStreamer().getId(), donation.getPaymentInfo().getAmount());
 
         if (userService.findById(donation.getStreamer().getId()).getOnline()) {
             log.info("Streamer onlayn, donatni jonli efirga uzatish");
@@ -154,8 +153,8 @@ public class DonationServiceImpl implements DonationService {
             executeToStream(donation);
         }
 
-        log.info("Telegram botga xabar yuborilyapti: {}", donation.getStreamer().getChatId());
-        botExecutor.sendDonationInfo(donation.getStreamer().getChatId(), donation);
+        log.info("Telegram botga xabar yuborilyapti: {}", donation.getStreamer().getId());
+        botExecutor.sendDonationInfo(donation.getStreamer().getId(), donation);
     }
 
     private void executeToStream(DonationEntity donation) {
@@ -186,19 +185,19 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public Page<DonationInfo> getDonationsOfStreamer(Long streamerId, int page, int size, int days) {
-        log.info("Streamer ID: {} uchun donatlar so'ralmoqda, kun: {}", streamerId, days);
+    public Page<DonationInfo> getDonationsOfStreamer(Long streamerId, int page, int size) {
+        log.info("Streamer ID: {} uchun donatlar so'ralmoqda", streamerId);
 
         UserEntity user = userService.findById(streamerId);
 
-        return repo.getAllByStreamerIdAndCreatedAtAfterAndCompletedIsTrue(user.getChatId(), LocalDateTime.now().minusDays(days + 1), PageRequest.of(page, size));
+        return repo.getAllByStreamerIdAndCompletedIsTrue(user.getId(), PageRequest.of(page, size));
     }
 
     @Override
-    public Page<DonationInfo> getAllDonations(int page, int size, int days) {
-        log.info("Oxirgi {} kun ichida barcha donatlar so'ralmoqda", days);
+    public Page<DonationInfo> getAllDonations(int page, int size) {
+        log.info("barcha donatlar so'ralmoqda");
 
-        return repo.getAllByCreatedAtAfterAndCompletedIsTrue(LocalDateTime.now().minusDays(days + 1), PageRequest.of(page, size));
+        return repo.getAllByCompletedIsTrue(PageRequest.of(page, size));
     }
 
     @Override
@@ -206,10 +205,10 @@ public class DonationServiceImpl implements DonationService {
         log.info("Administrator uchun {} kunlik statistika so'ralmoqda", days);
 
         if (days > 30){
-            return repo.getAllMonthlyStatistics(LocalDate.now().minusDays(days));
+            return repo.getAllMonthlyStatistics(days);
         }
 
-        return repo.getAllStatistics(LocalDate.now().minusDays(days), days);
+        return repo.getAllStatistics(days);
     }
 
     @Override
@@ -218,14 +217,7 @@ public class DonationServiceImpl implements DonationService {
 
         UserEntity user = userService.findById(streamerId);
 
-        return repo.getStatisticsOfStreamer(user.getChatId(), LocalDate.now().minusDays(days), days);
-    }
-
-    @Override
-    public FullStatisticRes getFullStatistic(Long streamerId, int days) {
-        log.info("Streamer ID: {} uchun to'liq statistika so'ralmoqda, kunlar: {}", streamerId, days);
-
-        return repo.getFullStatistic(streamerId, LocalDate.now().minusDays(days));
+        return repo.getStatisticsOfStreamer(user.getId(), LocalDate.now().minusDays(days), days);
     }
 
     @Override

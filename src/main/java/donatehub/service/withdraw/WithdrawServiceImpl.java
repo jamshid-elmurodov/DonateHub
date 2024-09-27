@@ -15,8 +15,6 @@ import donatehub.domain.projection.WithdrawInfo;
 import donatehub.repo.WithdrawRepository;
 import donatehub.service.user.UserService;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class WithdrawServiceImpl implements WithdrawService {
@@ -81,14 +79,14 @@ public class WithdrawServiceImpl implements WithdrawService {
     }
 
     @Override
-    public Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, int days, WithdrawStatus status) {
-        log.info("Holat bo'yicha chiqarish so'rovlarini olish: status - {}, page - {}, size - {}, days - {}", status, page, size, days);
-        return repo.getAllByCreatedAtAfterAndStatus(LocalDateTime.now().minusDays(days), status, PageRequest.of(page, size));
+    public Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, WithdrawStatus status) {
+        log.info("Holat bo'yicha chiqarish so'rovlarini olish: status - {}, page - {}, size - {}", status, page, size);
+        return repo.getAllByStatusOrderByCreatedAt(status, PageRequest.of(page, size));
     }
 
     @Override
-    public Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, int days, WithdrawStatus status) {
-        log.info("Streamer bo'yicha holat bo'yicha chiqarish so'rovlarini olish: streamerId - {}, status - {}, page - {}, size - {}, days - {}", streamerId, status, page, size, days);
-        return repo.getAllByStreamerIdAndCreatedAtAfterAndStatus(streamerId, LocalDateTime.now().minusDays(days), status, PageRequest.of(page, size));
+    public Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, WithdrawStatus status) {
+        log.info("Streamer bo'yicha holat bo'yicha chiqarish so'rovlarini olish: streamerId - {}, status - {}, page - {}, size - {}", streamerId, status, page, size);
+        return repo.getAllByStreamerIdAndStatusOrderByCreatedAt(streamerId, status, PageRequest.of(page, size));
     }
 }

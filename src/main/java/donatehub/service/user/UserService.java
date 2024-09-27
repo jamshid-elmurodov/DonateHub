@@ -15,11 +15,11 @@ public interface UserService {
 
     Page<UserInfo> getUsersByEnableState(Boolean getEnables, int page, int size);
 
-    Page<UserInfo> searchUsers(String text, int page, int size);
+    Page<UserInfo> searchUsers(String text, Boolean action, int page, int size);
 
-    UserInfo getById(Long chatId);
+    UserInfo getById(Long id);
 
-    UserEntity findById(Long chatId);
+    UserEntity findById(Long id);
 
     void recalculateStreamerBalance(Long streamerId, Float amount);
 
@@ -33,7 +33,9 @@ public interface UserService {
 
     void online(Long streamerId);
 
-//    List<UserStatisticRes> getStatisticsOfRegister(int days);
-//
-//    List<UserStatisticRes> getStatisticOfLastOnline(int days);
+    List<UserStatisticRes> getStatisticsOfRegister(int days);
+
+    List<UserStatisticRes> getStatisticOfLastOnline(int days);
+
+    void fullRegister(Long userId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg);
 }

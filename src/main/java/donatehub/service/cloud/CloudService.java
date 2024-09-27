@@ -1,8 +1,8 @@
-package donatehub.service.file;
+package donatehub.service.cloud;
 
 import org.springframework.web.multipart.MultipartFile;
 import donatehub.domain.enums.FileType;
 
-public interface FileService {
+public interface CloudService {
     String uploadFile(MultipartFile file, FileType fileType);
 }

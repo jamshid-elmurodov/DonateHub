@@ -12,24 +12,38 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String key;
 
-    @Value("${jwt.hours}")
-    private int hours;
+    @Value("${jwt.access.hours}")
+    private int accessHours;
 
-    public String generate(Long id){
+    @Value("${jwt.refresh.hours}")
+    private int refreshHours;
+
+    public String generateToken(Long id) {
         return Jwts.builder()
                 .issuedAt(new Date())
                 .signWith(Keys.hmacShaKeyFor(key.getBytes()))
-                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * hours))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * accessHours))
                 .subject(id.toString())
                 .compact();
     }
 
-    public Long extractId(String token){
-        return Long.parseLong(Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(key.getBytes()))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject());
+    public String generateRefreshToken(Long id) {
+        return Jwts.builder()
+                .issuedAt(new Date())
+                .signWith(Keys.hmacShaKeyFor(key.getBytes()))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * refreshHours))
+                .subject(id.toString())
+                .compact();
+    }
+
+    public Long extractUserId(String token) {
+        return Long.parseLong(
+                Jwts.parser()
+                        .verifyWith(Keys.hmacShaKeyFor(key.getBytes()))
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .getSubject()
+        );
     }
 }

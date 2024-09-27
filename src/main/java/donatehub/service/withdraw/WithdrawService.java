@@ -12,7 +12,7 @@ public interface WithdrawService {
 
     WithdrawEntity findById(Long withdrawId);
 
-    Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, int days, WithdrawStatus status);
+    Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, WithdrawStatus status);
 
-    Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, int days, WithdrawStatus status);
+    Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, WithdrawStatus status);
 }

@@ -1,5 +1,6 @@
 package donatehub.service.user;
 
+import donatehub.domain.response.UserStatisticRes;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,12 @@ import donatehub.domain.exception.BaseException;
 import donatehub.domain.projection.UserInfo;
 import donatehub.domain.request.UserUpdateReq;
 import donatehub.repo.UserRepository;
-import donatehub.service.file.FileService;
+import donatehub.service.cloud.CloudService;
 
 import static donatehub.domain.enums.UserRole.STREAMER;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +29,13 @@ public class UserServiceImpl implements UserService {
     private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
 
     private final UserRepository repo;
-    private final FileService cloudService;
+    private final CloudService cloudService;
 
     @Override
     public UserInfoForDonate findByChannelName(String channelName) {
         log.info("Kanaldan foydalanuvchi qidirilmoqda: {}", channelName);
 
-        return repo.findByChannelNameIgnoreCase(channelName).orElseThrow(
+        UserInfoForDonate info = repo.findByChannelNameIgnoreCase(channelName).orElseThrow(
                 () -> {
                     log.error("Kanal topilmadi: {}", channelName);
                     return new BaseException(
@@ -40,6 +44,17 @@ public class UserServiceImpl implements UserService {
                     );
                 }
         );
+
+        UserEntity user = findById(info.getId());
+
+        if (!user.getEnable()) {
+            throw new BaseException(
+                    "Streamer topilmadi",
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        return info;
     }
 
     @Override
@@ -49,17 +64,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserInfo> searchUsers(String text, int page, int size) {
+    public Page<UserInfo> searchUsers(String text, Boolean action, int page, int size) {
         log.info("Foydalanuvchilarni qidirish: matn - {}, sahifa - {}, o'lcham - {}", text, page, size);
-        return repo.getAllByFirstNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(text, text, PageRequest.of(page, size));
+        return repo.findAllByFirstNameOrUsernameAndEnable(text, text, action, PageRequest.of(page, size));
     }
 
     @Override
-    public UserInfo getById(Long chatId) {
-        log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", chatId);
-        return repo.getByChatId(chatId).orElseThrow(
+    public UserInfo getById(Long id) {
+        log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", id);
+        return repo.getByIdOrderByCreatedAt(id).orElseThrow(
                 () -> {
-                    log.error("Foydalanuvchi topilmadi: {}", chatId);
+                    log.error("Foydalanuvchi topilmadi: {}", id);
                     return new BaseException(
                             "Foydalanuvchi topilmadi",
                             HttpStatus.NOT_FOUND
@@ -71,7 +86,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity findById(Long chatId) {
         log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", chatId);
-        return repo.findByChatId(chatId).orElseThrow(
+        return repo.findById(chatId).orElseThrow(
                 () -> {
                     log.error("Foydalanuvchi topilmadi: {}", chatId);
                     return new BaseException(
@@ -145,14 +160,32 @@ public class UserServiceImpl implements UserService {
         repo.save(user);
     }
 
-//    @Override
-//    public List<UserStatisticRes> getStatisticsOfRegister(int days) {
-//        return repo.getStatisticOfRegister(LocalDate.now().minusDays(days));
-//    }
-//
-//    @Override
-//    public List<UserStatisticRes> getStatisticOfLastOnline(int days) {
-//        return repo.getStatisticOfLastOnline(LocalDate.now().minusDays(days));
-//    }
+    @Override
+    public List<UserStatisticRes> getStatisticsOfRegister(int days) {
+        return repo.getStatisticOfRegister(days);
+    }
+
+    @Override
+    public List<UserStatisticRes> getStatisticOfLastOnline(int days) {
+        return repo.getStatisticOfLastOnline(days);
+    }
+
+    @Override
+    public void fullRegister(Long userId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+        log.info("Foydalanuvchi to'liq registratsiyadan o'tmoqda: ID - {}", userId);
+        UserEntity user = findById(userId);
+
+        user.setRole(STREAMER);
+        user.setFullRegisteredAt(LocalDateTime.now());
+
+        this.update(
+                userId,
+                updateReq,
+                profileImg,
+                bannerImg
+        );
+
+        log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", userId);
+    }
 }
 

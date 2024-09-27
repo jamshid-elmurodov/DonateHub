@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +91,6 @@ public class DonationController {
             description = "Ushbu metod berilgan streamer uchun donatsiyalar ro'yxatini qaytaradi.",
             parameters = {
                     @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true),
-                    @Parameter(name = "days", description = "So'rov qilinayotgan kunlar soni", required = true),
                     @Parameter(name = "page", description = "Sahifa raqami", required = true),
                     @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true)
             },
@@ -103,11 +101,10 @@ public class DonationController {
     )
     public PagedRes<DonationInfo> getDonationsOfStreamer(
             @PathVariable Long streamerId,
-            @RequestParam int days,
             @RequestParam int page,
             @RequestParam int size
     ) {
-        return new PagedRes<>(donationService.getDonationsOfStreamer(streamerId, page, size, days));
+        return new PagedRes<>(donationService.getDonationsOfStreamer(streamerId, page, size));
     }
 
     @GetMapping
@@ -124,11 +121,10 @@ public class DonationController {
             }
     )
     public PagedRes<DonationInfo> getAllDonations(
-            @Valid @RequestParam @Min(1) int days,
             @RequestParam int page,
             @RequestParam int size
     ) {
-        return new PagedRes<>(donationService.getAllDonations(page, size, days));
+        return new PagedRes<>(donationService.getAllDonations(page, size));
     }
 
     @GetMapping("/statistics")
@@ -164,26 +160,6 @@ public class DonationController {
             @RequestParam int days
     ) {
         return donationService.getStatisticsForStreamer(streamerId, days);
-    }
-
-    @GetMapping("/info/{streamerId}")
-    @Operation(
-            summary = "To'liq statistikani olish",
-            description = "Ushbu metod streamer uchun to'liq statistika qaytaradi.",
-            parameters = {
-                    @Parameter(name = "streamerId", description = "Streamer identifikatori (optional)", required = false),
-                    @Parameter(name = "days", description = "Statistikalar uchun kunlar soni", required = true)
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "To'liq statistika", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FullStatisticRes.class))),
-                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
-            }
-    )
-    public FullStatisticRes getFullStatistic(
-            @PathVariable(required = false) Long streamerId,
-            @RequestParam int days
-    ) {
-        return donationService.getFullStatistic(streamerId, days);
     }
 
     @PostMapping("/test/{streamerId}")

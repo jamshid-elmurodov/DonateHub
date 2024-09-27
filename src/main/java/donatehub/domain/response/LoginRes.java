@@ -11,6 +11,7 @@ import donatehub.domain.enums.UserRole;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRes {
-    private String token;
     private UserRole role;
+    private String accessToken;
+    private String refreshToken;
 }

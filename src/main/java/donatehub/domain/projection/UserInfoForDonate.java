@@ -1,14 +1,14 @@
 package donatehub.domain.projection;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import donatehub.domain.entity.UserEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Projection for {@link UserEntity}
  */
+@Schema
 public interface UserInfoForDonate {
-    @JsonProperty("id")
-    Long getChatId();
+    Long getId();
 
     String getDescription();
 

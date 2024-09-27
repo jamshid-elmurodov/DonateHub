@@ -16,15 +16,13 @@ public interface DonationService {
 
     void complete(String body, PaymentMethod method);
 
-    Page<DonationInfo> getDonationsOfStreamer(Long streamerId, int page, int size, int days);
+    Page<DonationInfo> getDonationsOfStreamer(Long streamerId, int page, int size);
 
-    Page<DonationInfo> getAllDonations(int page, int size, int days);
+    Page<DonationInfo> getAllDonations(int page, int size);
 
     List<DonationStatisticRes> getStatisticsForAdmin(int days);
 
     List<DonationStatisticRes> getStatisticsForStreamer(Long streamerId, int days);
-
-    FullStatisticRes getFullStatistic(Long streamerId, int days);
 
     void testDonate(DonationCreateReq donationCreateReq, Long streamerId, UserEntity user);
 }

@@ -1,39 +1,46 @@
 package donatehub.repo;
 
 import donatehub.domain.enums.UserRole;
+import donatehub.domain.response.UserStatisticRes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import donatehub.domain.entity.UserEntity;
 import donatehub.domain.projection.UserInfoForDonate;
 import donatehub.domain.projection.UserInfo;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    Optional<UserEntity> findByChatId(Long chatId);
-
-    Optional<UserInfo> getByChatId(Long chatId);
+    Optional<UserInfo> getByIdOrderByCreatedAt(Long id);
 
     Optional<UserInfoForDonate> findByChannelNameIgnoreCase(String username);
 
     Page<UserInfo> getAllByEnableAndRole(Boolean approved, Pageable pageable, UserRole userRole);
 
-    Page<UserInfo> getAllByFirstNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(String firstName, String username, Pageable pageable);
+    @Query("SELECT u FROM users_table u WHERE (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%')) OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND u.enable = :enable ORDER BY u.lastOnlineAt")
+    Page<UserInfo> findAllByFirstNameOrUsernameAndEnable(@Param("firstName") String firstName, @Param("username") String username, @Param("enable") Boolean enable, Pageable pageable);
 
-//    @Query(
-//            "SELECT new donatehub.domain.response.UserStatisticRes(DATE(ut.createdAt), COUNT(*)) " +
-//                    "FROM users_table ut " +
-//                    "WHERE DATE(ut.createdAt) >= :date " +
-//                    "GROUP BY DATE(ut.createdAt)"
-//    )
-//    List<UserStatisticRes> getStatisticOfRegister(@Param("date") LocalDate date);
-//
-//    @Query(
-//            "SELECT new donatehub.domain.response.UserStatisticRes(DATE(ut.createdAt), COUNT(*)) " +
-//                    "FROM users_table ut " +
-//                    "WHERE DATE(ut.lastOnlineAt) >= :date " +
-//                    "GROUP BY DATE(ut.lastOnlineAt)"
-//    )
-//    List<UserStatisticRes> getStatisticOfLastOnline(@Param("date") LocalDate date);
+    @Query(
+            value = "SELECT days AS day, COALESCE(COUNT(us.*), 0) as count " +
+                    "FROM generate_series(current_date - INTERVAL '1 day' * :days, current_date, '1 day'::interval) AS days " +
+                    "LEFT JOIN users_table us ON us.full_registered_at::date = days " +
+                    "GROUP BY days " +
+                    "ORDER BY days",
+            nativeQuery = true
+    )
+    List<UserStatisticRes> getStatisticOfRegister(@Param("days") int days);
+
+    @Query(
+            value = "SELECT days AS day, COALESCE(COUNT(us.*), 0) as count " +
+                    "FROM generate_series(current_date - INTERVAL '1 day' * :days, current_date, '1 day'::interval) AS days " +
+                    "LEFT JOIN users_table us ON us.last_online_at::date = days " +
+                    "GROUP BY days " +
+                    "ORDER BY days",
+            nativeQuery = true
+    )
+    List<UserStatisticRes> getStatisticOfLastOnline(@Param("days") int days);
 }

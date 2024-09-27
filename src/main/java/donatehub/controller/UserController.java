@@ -1,5 +1,8 @@
 package donatehub.controller;
 
+import donatehub.domain.entity.UserEntity;
+import donatehub.domain.response.UserProfileRes;
+import donatehub.domain.response.UserStatisticRes;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,11 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,7 +26,13 @@ import donatehub.domain.request.UserUpdateReq;
 import donatehub.domain.model.ExceptionRes;
 import donatehub.service.user.UserService;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * UserController - Foydalanuvchilarni boshqarish va foydalanuvchi ma'lumotlarini olish uchun REST API.
@@ -102,12 +111,13 @@ public class UserController {
             parameters = {
                     @Parameter(name = "text", description = "Qidiruv matni", required = true),
                     @Parameter(name = "page", description = "Sahifa raqami", required = true),
-                    @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true)
+                    @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true),
+                    @Parameter(name = "enable", description = "Status", required = true),
             }
     )
     @GetMapping("/search")
-    public PagedRes<UserInfo> search(@RequestParam String text, @RequestParam int page, @RequestParam int size){
-        return new PagedRes<>(userService.searchUsers(text, page, size));
+    public PagedRes<UserInfo> searchEnables(@RequestParam String text, @RequestParam boolean enable, @RequestParam int page, @RequestParam int size){
+        return new PagedRes<>(userService.searchUsers(text, enable, page, size));
     }
 
     @Operation(
@@ -121,9 +131,10 @@ public class UserController {
     )
     @PutMapping("/{userId}")
     public void update(@PathVariable Long userId,
-                       @RequestPart UserUpdateReq updateReq,
+                       @RequestPart(value = "update", required = false) UserUpdateReq updateReq,
                        @RequestPart("profileImg") MultipartFile profileImg,
                        @RequestPart("bannerImg") MultipartFile bannerImg) {
+        System.out.println(updateReq.getChannelName());
         userService.update(userId, updateReq, profileImg, bannerImg);
     }
 
@@ -139,12 +150,50 @@ public class UserController {
 
     @Operation(
             summary = "Streamerni o'chirish",
-            tags = {"ADMIN"},
             description = "Berilgan streamer identifikatori asosida streamer statusini o'chiradi.",
             parameters = @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true)
     )
     @PutMapping("/disable/{streamerId}")
     public void disable(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
         userService.disable(streamerId);
+    }
+
+    @PutMapping("/offline/{streamerId}")
+    public void offline(@PathVariable Long streamerId){
+        userService.offline(streamerId);
+    }
+
+    @PutMapping("/online/{streamerId}")
+    public void online(@PathVariable Long streamerId){
+        userService.online(streamerId);
+    }
+
+    @GetMapping("/statistic/register")
+    public List<UserStatisticRes> getStatisticsOfRegister(@RequestParam int days){
+        return userService.getStatisticsOfRegister(days);
+    }
+
+    @GetMapping("/statistic/last-online")
+    public List<UserStatisticRes> getStatisticOfLastOnline(int days){
+        return userService.getStatisticOfLastOnline(days);
+    }
+
+    @Operation(
+            summary = "Streamerni to'liq register qilish"
+    )
+    @PutMapping("/register/{streamerId}")
+    public void fullRegister(@PathVariable Long streamerId,
+                             @RequestPart UserUpdateReq updateReq,
+                             @RequestPart("profileImg") MultipartFile profileImg,
+                             @RequestPart("bannerImg") MultipartFile bannerImg){
+        userService.fullRegister(streamerId, updateReq, profileImg, bannerImg);
+    }
+
+    @Operation(
+            summary = "User haqidagi ma'lumotlarni olish"
+    )
+    @GetMapping("/me")
+    public UserProfileRes getMe(@AuthenticationPrincipal UserEntity user){
+        return new UserProfileRes(user);
     }
 }

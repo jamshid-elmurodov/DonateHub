@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
  * Projection for {@link UserEntity}
  */
 public interface UserInfo {
-    @JsonProperty("id")
-    Long getChatId();
+    Long getId();
 
     String getFirstName();
 
@@ -31,7 +30,7 @@ public interface UserInfo {
 
     Boolean getEnable();
 
-    Integer getBalance();
+    Float getBalance();
 
     @JsonFormat(pattern = "dd/mm/yyyy HH:MM")
     LocalDateTime getLastOnlineAt();
