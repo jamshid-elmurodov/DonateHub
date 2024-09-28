@@ -41,7 +41,7 @@ click:
     url: ""
 
 server:
-  port: 8060
+  port: 8050
 
 jwt:
   secret:

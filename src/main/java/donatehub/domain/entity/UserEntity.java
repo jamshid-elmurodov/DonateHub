@@ -96,7 +96,7 @@ public class UserEntity implements UserDetails {
                 .firstName(authReq.getFirstName())
                 .username(authReq.getUsername())
                 .balance(0f)
-                .role(UserRole.NOT_FULL_REGISTERED)
+                .role(UserRole.STREAMER)
                 .api(UUID.randomUUID().toString())
                 .lastOnlineAt(LocalDateTime.now())
                 .build();

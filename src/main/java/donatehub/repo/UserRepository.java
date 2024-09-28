@@ -1,5 +1,6 @@
 package donatehub.repo;
 
+import donatehub.domain.projection.UserInfoForView;
 import donatehub.domain.enums.UserRole;
 import donatehub.domain.response.UserStatisticRes;
 import org.springframework.data.domain.Page;
@@ -19,10 +20,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserInfoForDonate> findByChannelNameIgnoreCase(String username);
 
-    Page<UserInfo> getAllByEnableAndRole(Boolean approved, Pageable pageable, UserRole userRole);
+    Page<UserInfoForView> getAllByEnableAndRoleOrderByFullRegisteredAt(Boolean approved, Pageable pageable, UserRole userRole);
 
     @Query("SELECT u FROM users_table u WHERE (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%')) OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND u.enable = :enable ORDER BY u.lastOnlineAt")
-    Page<UserInfo> findAllByFirstNameOrUsernameAndEnable(@Param("firstName") String firstName, @Param("username") String username, @Param("enable") Boolean enable, Pageable pageable);
+    Page<UserInfoForView> findAllByFirstNameOrUsernameAndEnable(@Param("firstName") String firstName, @Param("username") String username, @Param("enable") Boolean enable, Pageable pageable);
 
     @Query(
             value = "SELECT days AS day, COALESCE(COUNT(us.*), 0) as count " +

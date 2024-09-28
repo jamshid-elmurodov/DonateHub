@@ -44,7 +44,6 @@ public class WidgetServiceImpl implements WidgetService {
         WidgetEntity donationSetting = repo.findByStreamerId(streamerId);
 
         if (donationSetting == null) {
-            log.error("Widget topilmadi: streamerId - {}", streamerId);
             throw new BaseException(
                     "Widget topilmadi",
                     HttpStatus.NOT_FOUND
@@ -72,7 +71,6 @@ public class WidgetServiceImpl implements WidgetService {
         log.info("Widget olinmoqda: streamerId - {}", streamerId);
         WidgetEntity widget = repo.findByStreamerId(streamerId);
         if (widget == null) {
-            log.error("Widget topilmadi: streamerId - {}", streamerId);
             throw new BaseException(
                     "Widget topilmadi",
                     HttpStatus.NOT_FOUND

@@ -1,5 +1,6 @@
 package donatehub.service.user;
 
+import donatehub.domain.projection.UserInfoForView;
 import donatehub.domain.response.UserStatisticRes;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -58,13 +59,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserInfo> getUsersByEnableState(Boolean getEnables, int page, int size) {
+    public Page<UserInfoForView> getUsersByEnableState(Boolean getEnables, int page, int size) {
         log.info("Foydalanuvchilarni faollik holati bo'yicha qidirish: faol - {}, sahifa - {}, o'lcham - {}", getEnables, page, size);
-        return repo.getAllByEnableAndRole(getEnables, PageRequest.of(page, size), STREAMER);
+        return repo.getAllByEnableAndRoleOrderByFullRegisteredAt(getEnables, PageRequest.of(page, size), STREAMER);
     }
 
     @Override
-    public Page<UserInfo> searchUsers(String text, Boolean action, int page, int size) {
+    public Page<UserInfoForView> searchUsers(String text, Boolean action, int page, int size) {
         log.info("Foydalanuvchilarni qidirish: matn - {}, sahifa - {}, o'lcham - {}", text, page, size);
         return repo.findAllByFirstNameOrUsernameAndEnable(text, text, action, PageRequest.of(page, size));
     }
@@ -73,13 +74,10 @@ public class UserServiceImpl implements UserService {
     public UserInfo getById(Long id) {
         log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", id);
         return repo.getByIdOrderByCreatedAt(id).orElseThrow(
-                () -> {
-                    log.error("Foydalanuvchi topilmadi: {}", id);
-                    return new BaseException(
-                            "Foydalanuvchi topilmadi",
-                            HttpStatus.NOT_FOUND
-                    );
-                }
+                () -> new BaseException(
+                        "Foydalanuvchi topilmadi",
+                        HttpStatus.NOT_FOUND
+                )
         );
     }
 
@@ -87,13 +85,10 @@ public class UserServiceImpl implements UserService {
     public UserEntity findById(Long chatId) {
         log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", chatId);
         return repo.findById(chatId).orElseThrow(
-                () -> {
-                    log.error("Foydalanuvchi topilmadi: {}", chatId);
-                    return new BaseException(
-                            "Foydalanuvchi topilmadi",
-                            HttpStatus.NOT_FOUND
-                    );
-                }
+                () -> new BaseException(
+                        "Foydalanuvchi topilmadi",
+                        HttpStatus.NOT_FOUND
+                )
         );
     }
 

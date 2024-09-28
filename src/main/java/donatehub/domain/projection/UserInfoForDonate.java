@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * Projection for {@link UserEntity}
  */
-@Schema
 public interface UserInfoForDonate {
     Long getId();
 

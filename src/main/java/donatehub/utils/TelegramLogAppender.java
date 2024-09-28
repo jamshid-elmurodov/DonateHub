@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,6 +20,7 @@ public class TelegramLogAppender extends AppenderBase<ILoggingEvent> {
     private String botToken;
     private String chatId;
 
+    @Async
     @Override
     protected void append(ILoggingEvent eventObject) {
         String logMessage = eventObject.getFormattedMessage();

@@ -1,5 +1,6 @@
 package donatehub.service.user;
 
+import donatehub.domain.projection.UserInfoForView;
 import donatehub.domain.response.UserStatisticRes;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,9 +14,9 @@ import java.util.List;
 public interface UserService {
     UserInfoForDonate findByChannelName(String channelName);
 
-    Page<UserInfo> getUsersByEnableState(Boolean getEnables, int page, int size);
+    Page<UserInfoForView> getUsersByEnableState(Boolean getEnables, int page, int size);
 
-    Page<UserInfo> searchUsers(String text, Boolean action, int page, int size);
+    Page<UserInfoForView> searchUsers(String text, Boolean action, int page, int size);
 
     UserInfo getById(Long id);
 

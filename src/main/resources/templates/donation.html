@@ -6,13 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donation Alert</title>
     <style>
-        /* CSS style your page */
         body {
             background-color: rgba(0, 0, 0, 0);
             margin: 0;
-            overflow: hidden; /* Overflow to hide scrollbars */
+            overflow: hidden;
             height: 100vh;
-            font-size: 1em; /* Adjusted font size for better visibility */
+            font-size: 1em;
             color: white;
             text-align: center;
             position: relative;
@@ -21,10 +20,10 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100vw; /* Full viewport width */
-            height: 100vh; /* Full viewport height */
-            object-fit: cover; /* Cover the entire viewport */
-            z-index: -1; /* Make sure video is behind text */
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
         }
         #message {
             position: absolute;
@@ -34,12 +33,11 @@
             font-size: 2em;
             opacity: 0;
             transition: opacity 1s ease-in-out;
-            z-index: 1; /* Ensure message is above video */
+            z-index: 1;
         }
         #audio {
             display: none;
         }
-        /* Hide the 'api' paragraph */
         #api {
             display: none;
         }

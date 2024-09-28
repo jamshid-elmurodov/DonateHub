@@ -1,6 +1,7 @@
 package donatehub.controller;
 
 import donatehub.domain.entity.UserEntity;
+import donatehub.domain.projection.UserInfoForView;
 import donatehub.domain.response.UserProfileRes;
 import donatehub.domain.response.UserStatisticRes;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +26,8 @@ import donatehub.domain.request.UserUpdateReq;
 import donatehub.domain.model.ExceptionRes;
 import donatehub.service.user.UserService;
 
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * UserController - Foydalanuvchilarni boshqarish va foydalanuvchi ma'lumotlarini olish uchun REST API.
@@ -53,13 +48,13 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
             }
     )
-    @GetMapping("/user-info/{userId}")
+    @GetMapping("/info/{userId}")
     public UserInfo getUserInfo(@PathVariable Long userId){
         return userService.getById(userId);
     }
 
     @Hidden
-    @GetMapping("/s/{api}")
+    @GetMapping("/token/{api}")
     public ModelAndView showDonationPage(@PathVariable UUID api) {
         ModelAndView modelAndView = new ModelAndView("donation");
         modelAndView.addObject("api", api);
@@ -71,6 +66,7 @@ public class UserController {
             description = "Berilgan kanal nomi asosida streamer ma'lumotlarini qaytaradi.",
             parameters = @Parameter(name = "channelName", description = "Kanal nomi", required = true),
             responses = {
+                    @ApiResponse(responseCode = "200", description = "User ma'lumotlar donat uchun", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserInfoForDonate.class))),
                     @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
             }
     )
@@ -88,7 +84,7 @@ public class UserController {
             }
     )
     @GetMapping("/verified")
-    public PagedRes<UserInfo> getApprovedUsers(@RequestParam int page, @RequestParam int size){
+    public PagedRes<UserInfoForView> getApprovedUsers(@RequestParam int page, @RequestParam int size){
         return new PagedRes<>(userService.getUsersByEnableState(true, page, size));
     }
 
@@ -101,7 +97,7 @@ public class UserController {
             }
     )
     @GetMapping("/not-verified")
-    public PagedRes<UserInfo> getNotApproved(@RequestParam int page, @RequestParam int size){
+    public PagedRes<UserInfoForView> getNotApproved(@RequestParam int page, @RequestParam int size){
         return new PagedRes<>(userService.getUsersByEnableState(false, page, size));
     }
 
@@ -116,7 +112,7 @@ public class UserController {
             }
     )
     @GetMapping("/search")
-    public PagedRes<UserInfo> searchEnables(@RequestParam String text, @RequestParam boolean enable, @RequestParam int page, @RequestParam int size){
+    public PagedRes<UserInfoForView> searchEnables(@RequestParam String text, @RequestParam boolean enable, @RequestParam int page, @RequestParam int size){
         return new PagedRes<>(userService.searchUsers(text, enable, page, size));
     }
 
@@ -173,7 +169,7 @@ public class UserController {
         return userService.getStatisticsOfRegister(days);
     }
 
-    @GetMapping("/statistic/last-online")
+    @GetMapping("/statistic/online")
     public List<UserStatisticRes> getStatisticOfLastOnline(int days){
         return userService.getStatisticOfLastOnline(days);
     }
