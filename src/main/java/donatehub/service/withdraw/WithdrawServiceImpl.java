@@ -28,7 +28,8 @@ public class WithdrawServiceImpl implements WithdrawService {
         UserEntity user = userService.findById(streamerId);
 
         if (user.getBalance() < amount + getCommission(amount)) {
-            log.error("Balansingizda mablag' yetarli emas: userId - {}, neededAmount - {}", streamerId, amount + getCommission(amount));
+            log.error("Balansda mablag' yetarli emas: userId - {}, neededAmount - {}", streamerId, amount + getCommission(amount));
+
             throw new BaseException(
                     "Balansingizda mablag' yetarli emas",
                     HttpStatus.BAD_REQUEST
@@ -41,6 +42,7 @@ public class WithdrawServiceImpl implements WithdrawService {
                 amount,
                 WithdrawStatus.PENDING
         );
+
         repo.save(withdrawEntity);
 
         log.info("Chiqarish so'rovi yaratildi: {}", withdrawEntity);
@@ -52,7 +54,6 @@ public class WithdrawServiceImpl implements WithdrawService {
 
         WithdrawEntity withdraw = findById(withdrawId);
         withdraw.setStatus(status);
-
         repo.save(withdraw);
 
         log.info("Chiqarish so'rovining holati yangilandi: {}", withdraw);
@@ -63,9 +64,8 @@ public class WithdrawServiceImpl implements WithdrawService {
         log.info("Chiqarish so'rovi olinmoqda: withdrawId - {}", withdrawId);
         return repo.findById(withdrawId).orElseThrow(
                 () -> {
-                    log.error("Chiqarish so'rovi topilmadi: withdrawId - {}", withdrawId);
                     return new BaseException(
-                            "Chiqarish bo'yicha so'rov topilmadi",
+                            "Chiqarish bo'yicha so'rov topilmadi id:" + withdrawId,
                             HttpStatus.NOT_FOUND
                     );
                 }
@@ -73,6 +73,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     }
 
     private Float getCommission(Float amount) {
+        log.info("Komissiyani hisoblanmoqda: amount - {}", amount);
         return amount / 100 * 3f;
     }
 

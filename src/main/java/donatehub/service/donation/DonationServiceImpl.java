@@ -1,6 +1,7 @@
 package donatehub.service.donation;
 
 import donatehub.domain.entities.PaymentInfo;
+import donatehub.domain.projections.DonationStatisticResponse;
 import donatehub.domain.response.*;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
@@ -82,6 +83,7 @@ public class DonationServiceImpl implements DonationService {
 
         paymentInfo.setPaymentId(paymentResponse.getId());
 
+        log.info("Donat saqlanmoqda: {}", paymentInfo.getPaymentId());
         repo.save(DonationEntity.builder()
                 .donaterName(donateReq.getDonaterName())
                 .completed(false)
@@ -104,7 +106,7 @@ public class DonationServiceImpl implements DonationService {
 
         if (donation.getCompleted()){
             throw new BaseException(
-                    "Xayriya avval amalga oshirilgan",
+                    "Donat avval amalga tugallanib bo'lgan",
                     HttpStatus.BAD_REQUEST
             );
         }
@@ -138,12 +140,12 @@ public class DonationServiceImpl implements DonationService {
         donation.setCompleted(true);
         repo.save(donation);
 
-        log.info("Streamer balansini qayta hisoblash: {}", donation.getStreamer().getId());
+        log.info("Streamer balansini qayta hisoblanmoqda: {}", donation.getStreamer().getId());
 
         userService.recalculateStreamerBalance(donation.getStreamer().getId(), donation.getPaymentInfo().getAmount());
 
         if (userService.findById(donation.getStreamer().getId()).getOnline()) {
-            log.info("Streamer onlayn, donatni jonli efirga uzatish");
+            log.info("Streamer onlayn, donatni jonli efirga uzatilmoqda: {}", donation.getStreamer().getId());
 
             executeToStream(donation);
         }
@@ -167,7 +169,7 @@ public class DonationServiceImpl implements DonationService {
 
         return repo.findByPaymentInfoPaymentId(paymentId).orElseThrow(
                 () -> new BaseException(
-                        "Donation not found with this payment id",
+                        "Donat topilmadi paymentId: " + paymentId,
                         HttpStatus.NOT_FOUND
                 )
         );
@@ -190,14 +192,14 @@ public class DonationServiceImpl implements DonationService {
 
     @Override
     public Page<DonationInfo> getAllDonations(int page, int size) {
-        log.info("barcha donatlar so'ralmoqda");
+        log.info("Barcha donatlar so'ralmoqda");
 
         return repo.getAllByCompletedIsTrue(PageRequest.of(page, size));
     }
 
     @Override
     public List<DonationStatisticResponse> getStatisticsForAdmin(int days) {
-        log.info("Administrator uchun {} kunlik statistika so'ralmoqda", days);
+        log.info("Admin uchun {} kunlik statistika so'ralmoqda", days);
 
         if (days > 30){
             return repo.getAllMonthlyStatistics(days);
@@ -212,11 +214,13 @@ public class DonationServiceImpl implements DonationService {
 
         UserEntity user = userService.findById(streamerId);
 
-        return repo.getStatisticsOfStreamer(user.getId(), LocalDate.now().minusDays(days), days);
+        return repo.getStatisticsOfStreamer(user.getId(), days);
     }
 
     @Override
     public void testDonate(DonationCreateRequest donationCreateRequest, Long streamerId, UserEntity user) {
+        log.info("Test donat amalga oshirilyapti: {}", streamerId);
+
         if (!user.getId().equals(streamerId)) {
             throw new BaseException(
                     "Faqat streamerning o'zi test donate amalga oshirishi mumkin",

@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import donatehub.domain.entities.UserEntity;
 import donatehub.domain.constants.PaymentMethod;
 import donatehub.domain.response.CreateDonateResponse;
-import donatehub.domain.response.DonationStatisticResponse;
+import donatehub.domain.projections.DonationStatisticResponse;
 import donatehub.domain.projections.DonationInfo;
 import donatehub.domain.request.DonationCreateRequest;
 

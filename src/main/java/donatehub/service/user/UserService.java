@@ -26,13 +26,9 @@ public interface UserService {
 
     void update(Long userId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg);
 
-    void enable(Long streamerId);
+    void setEnable(Long streamerId, boolean action);
 
-    void disable(Long streamerId);
-
-    void offline(Long streamerId);
-
-    void online(Long streamerId);
+    void setOnline(Long streamerId, boolean action);
 
     List<UserStatisticResponse> getStatisticsOfRegister(int days);
 

@@ -49,7 +49,7 @@ public class CloudFlareServiceImpl implements CloudService {
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
         } catch (IOException e) {
-            throw new RuntimeException("Faylni yuklashda xatolik yuz berdi", e);
+            throw new BaseException("Faylni yuklashda xatolik yuz berdi", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

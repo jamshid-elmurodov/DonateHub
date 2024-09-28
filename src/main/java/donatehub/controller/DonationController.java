@@ -21,7 +21,7 @@ import donatehub.domain.projections.DonationInfo;
 import donatehub.domain.request.DonationCreateRequest;
 import donatehub.domain.response.ExceptionResponse;
 import donatehub.domain.response.CreateDonateResponse;
-import donatehub.domain.response.DonationStatisticResponse;
+import donatehub.domain.projections.DonationStatisticResponse;
 import donatehub.service.donation.DonationService;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/donation")
-@Tag(name = "Donation")
+@Tag(name = "Donation", description = "Donatsiyalarni boshqarish va statistikalarni olish")
 public class DonationController {
     private final DonationService donationService;
     private final Logger log;

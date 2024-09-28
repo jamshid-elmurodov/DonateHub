@@ -141,7 +141,7 @@ public class UserController {
     )
     @PutMapping("/enable/{streamerId}")
     public void enable(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
-        userService.enable(streamerId);
+        userService.setEnable(streamerId, true);
     }
 
     @Operation(
@@ -151,7 +151,7 @@ public class UserController {
     )
     @PutMapping("/disable/{streamerId}")
     public void disable(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
-        userService.disable(streamerId);
+        userService.setEnable(streamerId, false);
     }
 
     @Operation(
@@ -160,16 +160,16 @@ public class UserController {
     )
     @PutMapping("/offline/{streamerId}")
     public void offline(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
-        userService.offline(streamerId);
+        userService.setOnline(streamerId, false);
     }
 
     @Operation(
-            summary = "Streamer online qilish",
-            description = "Berilgan streamer identifikatori asosida streamer statusini online qiladi."
+            summary = "Streamer setOnline qilish",
+            description = "Berilgan streamer identifikatori asosida streamer statusini setOnline qiladi."
     )
     @PutMapping("/online/{streamerId}")
     public void online(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
-        userService.online(streamerId);
+        userService.setOnline(streamerId, true);
     }
 
     @Operation(

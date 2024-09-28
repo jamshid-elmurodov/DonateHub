@@ -36,7 +36,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
             UserEntity user = userService.findById(userId);
 
-            if (!user.getEnable() && user.getFullRegisteredAt() != null) {
+            if (user.getFullRegisteredAt() == null) {
+                throw new BaseException(
+                    "Siz to'liq registratsiyadan o'tmagansiz iltimos registratsiyani amalga oshiring",
+                    HttpStatus.CONFLICT
+                );
+            }
+
+            if (!user.getEnable()) {
                 throw new BaseException(
                         "Siz hali admin tomonidan tasdiqlanmadingiz iltimos admin javobini kuting",
                         HttpStatus.BAD_REQUEST

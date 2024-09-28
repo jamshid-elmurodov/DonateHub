@@ -1,5 +1,7 @@
 package donatehub.service.auth;
 
+import donatehub.domain.request.RefreshTokenRequest;
+import donatehub.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -12,7 +14,6 @@ import donatehub.domain.request.AuthRequest;
 import donatehub.domain.response.LoginResponse;
 import donatehub.repo.UserRepository;
 import donatehub.config.security.JwtProvider;
-import donatehub.service.user.UserService;
 import donatehub.service.widget.WidgetService;
 import donatehub.utils.TelegramUtils;
 
@@ -45,6 +46,7 @@ public class TelegramAuthService implements AuthService {
 
         if (!TelegramUtils.verifyAuth(dataCheckString, botToken, authRequest.getHash())) {
             log.error("Ushbu so'rov Telegramdan emas: {}", authRequest);
+
             throw new BaseException("Ushbu so'rov Telegramdan emas", HttpStatus.BAD_REQUEST);
         }
 
@@ -62,8 +64,24 @@ public class TelegramAuthService implements AuthService {
         );
     }
 
+    @Override
+    public LoginResponse refreshToken(RefreshTokenRequest refreshToken) {
+        Long userId = jwtProvider.extractUserId(refreshToken.getRefreshToken());
+
+        UserEntity user = userService.findById(userId);
+
+        String accessToken = jwtProvider.generateToken(userId);
+
+        return new LoginResponse(
+                user.getRole(),
+                accessToken,
+                refreshToken.getRefreshToken()
+        );
+    }
+
     private void updateUser(UserEntity user, AuthRequest authRequest) {
         boolean updated = false;
+        user.setLastOnlineAt(LocalDateTime.now());
 
         if (!Objects.equals(user.getFirstName(), authRequest.getFirstName())) {
             user.setFirstName(authRequest.getFirstName());
@@ -76,11 +94,9 @@ public class TelegramAuthService implements AuthService {
         }
 
         if (updated) {
-            user.setLastOnlineAt(LocalDateTime.now());
             userRepository.save(user);
             log.info("Foydalanuvchi ma'lumotlari yangilandi: {}", user);
         }
-
     }
 
     private UserEntity createNewUser(AuthRequest authRequest) {

@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo getById(Long id) {
         log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", id);
+
         return repo.getByIdOrderByCreatedAt(id).orElseThrow(
                 () -> new BaseException(
                         "Foydalanuvchi topilmadi",
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity findById(Long chatId) {
         log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", chatId);
+
         return repo.findById(chatId).orElseThrow(
                 () -> new BaseException(
                         "Foydalanuvchi topilmadi",
@@ -93,6 +95,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(Long chatId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
         log.info("Foydalanuvchi ma'lumotlarini yangilash: ID - {}", chatId);
+
         UserEntity user = findById(chatId);
 
         user.setDescription(updateReq.getDescription());
@@ -109,63 +112,59 @@ public class UserServiceImpl implements UserService {
         }
 
         repo.save(user);
+
         log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", chatId);
     }
 
     @Override
     public void recalculateStreamerBalance(Long streamerId, Float amount) {
         log.info("Streamer balansini qayta hisoblash: ID - {}, miqdor - {}", streamerId, amount);
+
         UserEntity user = findById(streamerId);
         user.setBalance(user.getBalance() + amount);
         repo.save(user);
+
         log.info("Streamer balansiga qo'shildi: ID - {}, yangi balans - {}", streamerId, user.getBalance());
     }
 
     @Override
-    public void enable(Long streamerId) {
-        log.info("Streamer faollashtirilmoqda: ID - {}", streamerId);
+    public void setEnable(Long streamerId, boolean action) {
+        log.info("Streamer enable o'zgartirilmoqda: ID - {}, action - {}", streamerId, action);
+
         UserEntity user = findById(streamerId);
-        user.setEnable(true);
+        user.setEnable(action);
         repo.save(user);
-        log.info("Streamer faollashtirildi: ID - {}", streamerId);
+
+        log.info("Streamer enable o'zgartirildi: ID - {}, action - {}", streamerId, action);
     }
 
     @Override
-    public void disable(Long streamerId) {
-        log.info("Streamer o'chirilmoqda: ID - {}", streamerId);
-        UserEntity user = findById(streamerId);
-        user.setEnable(false);
-        repo.save(user);
-        log.info("Streamer o'chirildi: ID - {}", streamerId);
-    }
+    public void setOnline(Long streamerId, boolean action) {
+        log.info("Stremar online o'zgartirilmoqda: ID - {}, action - {}", streamerId, action);
 
-    @Override
-    public void offline(Long streamerId) {
         UserEntity user = findById(streamerId);
-        user.setOnline(false);
+        user.setOnline(action);
         repo.save(user);
-    }
 
-    @Override
-    public void online(Long streamerId) {
-        UserEntity user = findById(streamerId);
-        user.setOnline(true);
-        repo.save(user);
+        log.info("Stremar online o'zgartirildi: ID - {}, action - {}", streamerId, action);
     }
 
     @Override
     public List<UserStatisticResponse> getStatisticsOfRegister(int days) {
+        log.info("Foydalanuvchilar statiskasini olish register bo'yicha: {} - kunlik", days);
         return repo.getStatisticOfRegister(days);
     }
 
     @Override
     public List<UserStatisticResponse> getStatisticOfLastOnline(int days) {
+        log.info("Foydalanuvchilar statiskasini olish online bo'yicha: {} - kunlik", days);
         return repo.getStatisticOfLastOnline(days);
     }
 
     @Override
     public void fullRegister(Long userId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
         log.info("Foydalanuvchi to'liq registratsiyadan o'tmoqda: ID - {}", userId);
+
         UserEntity user = findById(userId);
 
         user.setRole(STREAMER);

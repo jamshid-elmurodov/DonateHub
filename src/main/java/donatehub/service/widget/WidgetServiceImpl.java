@@ -29,9 +29,13 @@ public class WidgetServiceImpl implements WidgetService {
     @Override
     public WidgetEntity create(UserEntity streamer) {
         log.info("Yangi widget yaratilyapti: streamerId - {}", streamer.getId());
-        WidgetEntity widget = new WidgetEntity(streamer.getId(), videoUrl, audioUrl, 5);
-        WidgetEntity savedWidget = repo.save(widget);
+
+        WidgetEntity savedWidget = repo.save(
+                new WidgetEntity(streamer.getId(), videoUrl, audioUrl, 5)
+        );
+
         log.info("Widget yaratildi: {}", savedWidget);
+
         return savedWidget;
     }
 
@@ -67,13 +71,16 @@ public class WidgetServiceImpl implements WidgetService {
     @Override
     public WidgetEntity getDonationWidgetOfStreamer(Long streamerId) {
         log.info("Widget olinmoqda: streamerId - {}", streamerId);
+
         WidgetEntity widget = repo.findByStreamerId(streamerId);
+
         if (widget == null) {
             throw new BaseException(
                     "Widget topilmadi",
                     HttpStatus.NOT_FOUND
             );
         }
+
         log.info("Widget topildi: {}", widget);
         return widget;
     }
