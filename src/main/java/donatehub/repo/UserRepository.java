@@ -1,14 +1,14 @@
 package donatehub.repo;
 
-import donatehub.domain.projection.UserInfoForView;
-import donatehub.domain.enums.UserRole;
-import donatehub.domain.response.UserStatisticRes;
+import donatehub.domain.projections.UserInfoForView;
+import donatehub.domain.constants.UserRole;
+import donatehub.domain.projections.UserStatisticResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.projection.UserInfoForDonate;
-import donatehub.domain.projection.UserInfo;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.projections.UserInfoForDonate;
+import donatehub.domain.projections.UserInfo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                     "ORDER BY days",
             nativeQuery = true
     )
-    List<UserStatisticRes> getStatisticOfRegister(@Param("days") int days);
+    List<UserStatisticResponse> getStatisticOfRegister(@Param("days") int days);
 
     @Query(
             value = "SELECT days AS day, COALESCE(COUNT(us.*), 0) as count " +
@@ -43,5 +43,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                     "ORDER BY days",
             nativeQuery = true
     )
-    List<UserStatisticRes> getStatisticOfLastOnline(@Param("days") int days);
+    List<UserStatisticResponse> getStatisticOfLastOnline(@Param("days") int days);
 }

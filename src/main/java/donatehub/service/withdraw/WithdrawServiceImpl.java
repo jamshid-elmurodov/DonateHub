@@ -2,24 +2,22 @@ package donatehub.service.withdraw;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.entity.WithdrawEntity;
-import donatehub.domain.enums.WithdrawStatus;
-import donatehub.domain.exception.BaseException;
-import donatehub.domain.projection.WithdrawInfo;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.entities.WithdrawEntity;
+import donatehub.domain.constants.WithdrawStatus;
+import donatehub.domain.exceptions.BaseException;
+import donatehub.domain.projections.WithdrawInfo;
 import donatehub.repo.WithdrawRepository;
 import donatehub.service.user.UserService;
 
 @Service
 @RequiredArgsConstructor
 public class WithdrawServiceImpl implements WithdrawService {
-    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
-
+    private final Logger log;
     private final WithdrawRepository repo;
     private final UserService userService;
 

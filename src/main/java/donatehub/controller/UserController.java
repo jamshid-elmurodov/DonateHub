@@ -1,9 +1,9 @@
 package donatehub.controller;
 
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.projection.UserInfoForView;
-import donatehub.domain.response.UserProfileRes;
-import donatehub.domain.response.UserStatisticRes;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.projections.UserInfoForView;
+import donatehub.domain.response.UserProfileResponse;
+import donatehub.domain.projections.UserStatisticResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,11 +19,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import donatehub.domain.projection.UserInfoForDonate;
-import donatehub.domain.model.PagedRes;
-import donatehub.domain.projection.UserInfo;
-import donatehub.domain.request.UserUpdateReq;
-import donatehub.domain.model.ExceptionRes;
+import donatehub.domain.projections.UserInfoForDonate;
+import donatehub.domain.response.PagedResponse;
+import donatehub.domain.projections.UserInfo;
+import donatehub.domain.request.UserUpdateRequest;
+import donatehub.domain.response.ExceptionResponse;
 import donatehub.service.user.UserService;
 
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-@Tag(name = "User")
+@Tag(name = "User", description = "Foydalanuvchilarni boshqarish va foydalanuvchi ma'lumotlarini olish uchun API")
 public class UserController {
     private final UserService userService;
 
@@ -45,7 +45,7 @@ public class UserController {
             parameters = @Parameter(name = "userId", description = "Foydalanuvchi identifikatori", required = true),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Streamer topilsa data qaytariladi", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserInfo.class))),
-                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @GetMapping("/info/{userId}")
@@ -67,7 +67,7 @@ public class UserController {
             parameters = @Parameter(name = "channelName", description = "Kanal nomi", required = true),
             responses = {
                     @ApiResponse(responseCode = "200", description = "User ma'lumotlar donat uchun", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserInfoForDonate.class))),
-                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari, Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @GetMapping("/{channelName}")
@@ -84,8 +84,8 @@ public class UserController {
             }
     )
     @GetMapping("/verified")
-    public PagedRes<UserInfoForView> getApprovedUsers(@RequestParam int page, @RequestParam int size){
-        return new PagedRes<>(userService.getUsersByEnableState(true, page, size));
+    public PagedResponse<UserInfoForView> getApprovedUsers(@RequestParam int page, @RequestParam int size){
+        return new PagedResponse<>(userService.getUsersByEnableState(true, page, size));
     }
 
     @Operation(
@@ -97,8 +97,8 @@ public class UserController {
             }
     )
     @GetMapping("/not-verified")
-    public PagedRes<UserInfoForView> getNotApproved(@RequestParam int page, @RequestParam int size){
-        return new PagedRes<>(userService.getUsersByEnableState(false, page, size));
+    public PagedResponse<UserInfoForView> getNotApproved(@RequestParam int page, @RequestParam int size){
+        return new PagedResponse<>(userService.getUsersByEnableState(false, page, size));
     }
 
     @Operation(
@@ -112,8 +112,8 @@ public class UserController {
             }
     )
     @GetMapping("/search")
-    public PagedRes<UserInfoForView> searchEnables(@RequestParam String text, @RequestParam boolean enable, @RequestParam int page, @RequestParam int size){
-        return new PagedRes<>(userService.searchUsers(text, enable, page, size));
+    public PagedResponse<UserInfoForView> searchEnables(@RequestParam String text, @RequestParam boolean enable, @RequestParam int page, @RequestParam int size){
+        return new PagedResponse<>(userService.searchUsers(text, enable, page, size));
     }
 
     @Operation(
@@ -127,7 +127,7 @@ public class UserController {
     )
     @PutMapping("/{userId}")
     public void update(@PathVariable Long userId,
-                       @RequestPart(value = "update", required = false) UserUpdateReq updateReq,
+                       @RequestPart(value = "update", required = false) UserUpdateRequest updateReq,
                        @RequestPart("profileImg") MultipartFile profileImg,
                        @RequestPart("bannerImg") MultipartFile bannerImg) {
         System.out.println(updateReq.getChannelName());
@@ -154,32 +154,65 @@ public class UserController {
         userService.disable(streamerId);
     }
 
+    @Operation(
+            summary = "Streamer offline qilish",
+            description = "Berilgan streamer identifikatori asosida streamer statusini offline qiladi."
+    )
     @PutMapping("/offline/{streamerId}")
-    public void offline(@PathVariable Long streamerId){
+    public void offline(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
         userService.offline(streamerId);
     }
 
+    @Operation(
+            summary = "Streamer online qilish",
+            description = "Berilgan streamer identifikatori asosida streamer statusini online qiladi."
+    )
     @PutMapping("/online/{streamerId}")
-    public void online(@PathVariable Long streamerId){
+    public void online(@PathVariable @NotNull(message = "User id null bo'lishi mumkin emas") Long streamerId){
         userService.online(streamerId);
     }
 
+    @Operation(
+            summary = "Ro'yxatdan o'tgan foydalanuvchilar sonini olish",
+            description = "Berilgan kunlar soniga asoslanib ro'yxatdan o'tgan foydalanuvchilar sonini qaytaradi.",
+            parameters = @Parameter(name = "days", description = "So'rov qilinayotgan kunlar soni", required = true)
+    )
     @GetMapping("/statistic/register")
-    public List<UserStatisticRes> getStatisticsOfRegister(@RequestParam int days){
+    public List<UserStatisticResponse> getStatisticsOfRegister(@RequestParam int days){
         return userService.getStatisticsOfRegister(days);
     }
 
+    @Operation(
+            summary = "Onlayn foydalanuvchilar sonini olish",
+            description = "Berilgan kunlar soniga asoslanib onlayn foydalanuvchilar sonini qaytaradi.",
+            parameters = @Parameter(name = "days", description = "So'rov qilinayotgan kunlar soni. Masalan, 30 - o'tgan 30 kunlik davr uchun", required = true, example = "30")
+    )
     @GetMapping("/statistic/online")
-    public List<UserStatisticRes> getStatisticOfLastOnline(int days){
+    public List<UserStatisticResponse> getStatisticOfLastOnline(@RequestParam int days){
         return userService.getStatisticOfLastOnline(days);
     }
 
     @Operation(
-            summary = "Streamerni to'liq register qilish"
+            summary = "Streamerni to'liq register qilish",
+            parameters = {
+                    @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true),
+                    @Parameter(name = "updateReq", description = "Foydalanuvchi yangilash so'rovi", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserUpdateRequest.class))),
+                    @Parameter(name = "profileImg", description = "Foydalanuvchi profil rasmi", required = true, schema = @Schema(type = "string", format = "binary")),
+                    @Parameter(name = "bannerImg", description = "Foydalanuvchi banner rasmi", required = true, schema = @Schema(type = "string", format = "binary"))
+            },
+            requestBody = @RequestBody(
+                    description = "Foydalanuvchi yangilash so'rovi",
+                    content = @Content(mediaType = "multipart/form-data")
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Streamerni to'liq register qilish muvaffaqiyatli amalga oshirildi"),
+                    @ApiResponse(responseCode = "404", description = "Streamer topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+            }
     )
     @PutMapping("/register/{streamerId}")
     public void fullRegister(@PathVariable Long streamerId,
-                             @RequestPart UserUpdateReq updateReq,
+                             @RequestPart UserUpdateRequest updateReq,
                              @RequestPart("profileImg") MultipartFile profileImg,
                              @RequestPart("bannerImg") MultipartFile bannerImg){
         userService.fullRegister(streamerId, updateReq, profileImg, bannerImg);
@@ -189,7 +222,7 @@ public class UserController {
             summary = "User haqidagi ma'lumotlarni olish"
     )
     @GetMapping("/me")
-    public UserProfileRes getMe(@AuthenticationPrincipal UserEntity user){
-        return new UserProfileRes(user);
+    public UserProfileResponse getMe(@AuthenticationPrincipal UserEntity user){
+        return new UserProfileResponse(user);
     }
 }

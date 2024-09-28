@@ -1,8 +1,8 @@
 package donatehub.service.auth;
 
-import donatehub.domain.request.AuthReq;
-import donatehub.domain.response.LoginRes;
+import donatehub.domain.request.AuthRequest;
+import donatehub.domain.response.LoginResponse;
 
 public interface AuthService {
-    LoginRes login(AuthReq authReq);
+    LoginResponse login(AuthRequest authRequest);
 }

@@ -1,12 +1,12 @@
 package donatehub.service.payment.mirpay;
 
-import donatehub.domain.request.MirPayReq;
-import donatehub.domain.response.PaymentRes;
+import donatehub.domain.request.MirPayRequest;
+import donatehub.domain.response.PaymentResponse;
 
 public interface MirPayService {
-    PaymentRes create(Float amount);
+    PaymentResponse create(Float amount);
 
-    void complete(MirPayReq mirPayReq);
+    void complete(MirPayRequest mirPayRequest);
 
-    MirPayReq readBody(String body);
+    MirPayRequest readBody(String body);
 }

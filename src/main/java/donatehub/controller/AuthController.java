@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import donatehub.domain.request.AuthReq;
-import donatehub.domain.model.ExceptionRes;
-import donatehub.domain.response.LoginRes;
+import donatehub.domain.request.AuthRequest;
+import donatehub.domain.response.ExceptionResponse;
+import donatehub.domain.response.LoginResponse;
 import donatehub.service.auth.AuthService;
 
 /**
@@ -31,17 +31,17 @@ public class AuthController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Telegram orqali autentifikatsiya uchun foydalanuvchi ma'lumotlari",
                     required = true,
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthReq.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthRequest.class))
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Muvaffaqiyatli autentifikatsiya", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginRes.class))),
-                    @ApiResponse(responseCode = "400", description = "Noto'g'ri so'rov ma'lumotlari yoki autentifikatsiya muvaffaqiyatsiz", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Server xatosi yoki tizim ichki muammosi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "200", description = "Muvaffaqiyatli autentifikatsiya", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Noto'g'ri so'rov ma'lumotlari yoki autentifikatsiya muvaffaqiyatsiz", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Server xatosi yoki tizim ichki muammosi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
-    public LoginRes auth(
-            @RequestBody @Valid @Parameter(description = "Foydalanuvchining autentifikatsiya uchun kerakli ma'lumotlar") AuthReq authReq
+    public LoginResponse auth(
+            @RequestBody @Valid @Parameter(description = "Foydalanuvchining autentifikatsiya uchun kerakli ma'lumotlar") AuthRequest authRequest
     ) {
-        return authService.login(authReq);
+        return authService.login(authRequest);
     }
 }

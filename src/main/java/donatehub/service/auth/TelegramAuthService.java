@@ -3,14 +3,13 @@ package donatehub.service.auth;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.exception.BaseException;
-import donatehub.domain.request.AuthReq;
-import donatehub.domain.response.LoginRes;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.exceptions.BaseException;
+import donatehub.domain.request.AuthRequest;
+import donatehub.domain.response.LoginResponse;
 import donatehub.repo.UserRepository;
 import donatehub.config.security.JwtProvider;
 import donatehub.service.user.UserService;
@@ -24,8 +23,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class TelegramAuthService implements AuthService {
-    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
-
+    private final Logger log;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final UserService userService;
@@ -35,48 +33,45 @@ public class TelegramAuthService implements AuthService {
     private String botToken;
 
     @Override
-    public LoginRes login(AuthReq authReq) {
-        log.info("Login jarayoni boshlandi: {}", authReq);
+    public LoginResponse login(AuthRequest authRequest) {
+        log.info("Tizimga kirish jarayoni boshlandi: {}", authRequest);
 
         String dataCheckString = TelegramUtils.getDataCheckString(
-                authReq.getId(),
-                authReq.getFirstName(),
-                authReq.getUsername(),
-                authReq.getAuthDate()
+                authRequest.getId(),
+                authRequest.getFirstName(),
+                authRequest.getUsername(),
+                authRequest.getAuthDate()
         );
 
-//        if (!TelegramUtils.verifyAuth(dataCheckString, botToken, authReq.getHash())) {
-//            log.error("Telegramdan kelmagan request: {}", authReq);
-//            throw new BaseException("Bu so'rov telegramdan kelmayapti", HttpStatus.BAD_REQUEST);
-//        }
-
-        UserEntity user;
-        try {
-            user = userService.findById(authReq.getId());
-            updateUser(user, authReq);
-        } catch (BaseException e){
-            user = createNewUser(authReq);
+        if (!TelegramUtils.verifyAuth(dataCheckString, botToken, authRequest.getHash())) {
+            log.error("Ushbu so'rov Telegramdan emas: {}", authRequest);
+            throw new BaseException("Ushbu so'rov Telegramdan emas", HttpStatus.BAD_REQUEST);
         }
 
-        log.info("Foydalanuvchi muvaffaqiyatli login qildi: {}", user.getId());
+        UserEntity user = userRepository.findById(authRequest.getId())
+                .orElseGet(() -> createNewUser(authRequest));
 
-        return new LoginRes(
+        updateUser(user, authRequest);
+
+        log.info("Foydalanuvchi muvaffaqiyatli tizimga kirdi: {}", user.getId());
+
+        return new LoginResponse(
                 user.getRole(),
                 jwtProvider.generateToken(user.getId()),
                 jwtProvider.generateRefreshToken(user.getId())
         );
     }
 
-    private void updateUser(UserEntity user, AuthReq authReq) {
+    private void updateUser(UserEntity user, AuthRequest authRequest) {
         boolean updated = false;
 
-        if (!Objects.equals(user.getFirstName(), authReq.getFirstName())) {
-            user.setFirstName(authReq.getFirstName());
+        if (!Objects.equals(user.getFirstName(), authRequest.getFirstName())) {
+            user.setFirstName(authRequest.getFirstName());
             updated = true;
         }
 
-        if (!Objects.equals(user.getUsername(), authReq.getUsername())) {
-            user.setUsername(authReq.getUsername());
+        if (!Objects.equals(user.getUsername(), authRequest.getUsername())) {
+            user.setUsername(authRequest.getUsername());
             updated = true;
         }
 
@@ -88,10 +83,10 @@ public class TelegramAuthService implements AuthService {
 
     }
 
-    private UserEntity createNewUser(AuthReq authReq) {
-        log.warn("Foydalanuvchi topilmadi, yangi foydalanuvchi yaratilmoqda: {}", authReq);
+    private UserEntity createNewUser(AuthRequest authRequest) {
+        log.warn("Foydalanuvchi topilmadi, yangi foydalanuvchi yaratilmoqda: {}", authRequest);
 
-        UserEntity newUser = UserEntity.from(authReq);
+        UserEntity newUser = UserEntity.from(authRequest);
 
         userRepository.save(newUser);
         widgetService.create(newUser);

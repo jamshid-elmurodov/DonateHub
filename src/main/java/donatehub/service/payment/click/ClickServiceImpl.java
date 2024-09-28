@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import donatehub.domain.exception.BaseException;
-import donatehub.domain.request.ClickReq;
-import donatehub.domain.response.ClickRes;
-import donatehub.domain.response.PaymentRes;
+import donatehub.domain.exceptions.BaseException;
+import donatehub.domain.request.ClickRequest;
+import donatehub.domain.response.ClickResponse;
+import donatehub.domain.response.PaymentResponse;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -29,18 +29,18 @@ public class ClickServiceImpl implements ClickService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public PaymentRes create(Float amount) {
+    public PaymentResponse create(Float amount) {
         String id = UUID.randomUUID().toString();
 
         String url = String.format("https://my.click.uz/services/pay?service_id=%s&merchant_id=%s&amount=%s&transaction_param=%s&return_url=%s", serviceId, merchantId, amount, id, returnUrl);
 
-        return new PaymentRes(id, url);
+        return new PaymentResponse(id, url);
     }
 
     @Override
-    public ClickReq readBody(String body) {
+    public ClickRequest readBody(String body) {
         try {
-            return objectMapper.readValue(body, ClickReq.class);
+            return objectMapper.readValue(body, ClickRequest.class);
         } catch (JsonProcessingException e) {
             throw new BaseException(
                     "Click, ma'lumot o'qishda xatolik",
@@ -50,15 +50,15 @@ public class ClickServiceImpl implements ClickService {
     }
 
     @Override
-    public ClickRes prepare(ClickReq clickReq) {
+    public ClickResponse prepare(ClickRequest clickRequest) {
         return null;
     }
 
     @Override
-    public void complete(ClickReq clickReq, Float donationAmount) {
-        if (clickReq.getAction() != 1 || !Objects.equals(clickReq.getAmount(), donationAmount)) {
+    public void complete(ClickRequest clickRequest, Float donationAmount) {
+        if (clickRequest.getAction() != 1 || !Objects.equals(clickRequest.getAmount(), donationAmount)) {
             throw new BaseException(
-                    String.format("Donat to'liq amalga oshirilmagan (Click) %s", clickReq.getClickTransId()),
+                    String.format("Donat to'liq amalga oshirilmagan (Click) %s", clickRequest.getClickTransId()),
                     HttpStatus.BAD_REQUEST
             );
         }

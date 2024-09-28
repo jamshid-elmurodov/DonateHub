@@ -1,25 +1,24 @@
 package donatehub.service.user;
 
-import donatehub.domain.projection.UserInfoForView;
-import donatehub.domain.response.UserStatisticRes;
+import donatehub.domain.projections.UserInfoForView;
+import donatehub.domain.projections.UserStatisticResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.projection.UserInfoForDonate;
-import donatehub.domain.enums.FileType;
-import donatehub.domain.exception.BaseException;
-import donatehub.domain.projection.UserInfo;
-import donatehub.domain.request.UserUpdateReq;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.projections.UserInfoForDonate;
+import donatehub.domain.constants.FileType;
+import donatehub.domain.exceptions.BaseException;
+import donatehub.domain.projections.UserInfo;
+import donatehub.domain.request.UserUpdateRequest;
 import donatehub.repo.UserRepository;
 import donatehub.service.cloud.CloudService;
 
-import static donatehub.domain.enums.UserRole.STREAMER;
+import static donatehub.domain.constants.UserRole.STREAMER;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,8 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");;
-
+    private final Logger log;
     private final UserRepository repo;
     private final CloudService cloudService;
 
@@ -93,7 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(Long chatId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+    public void update(Long chatId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
         log.info("Foydalanuvchi ma'lumotlarini yangilash: ID - {}", chatId);
         UserEntity user = findById(chatId);
 
@@ -156,17 +154,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserStatisticRes> getStatisticsOfRegister(int days) {
+    public List<UserStatisticResponse> getStatisticsOfRegister(int days) {
         return repo.getStatisticOfRegister(days);
     }
 
     @Override
-    public List<UserStatisticRes> getStatisticOfLastOnline(int days) {
+    public List<UserStatisticResponse> getStatisticOfLastOnline(int days) {
         return repo.getStatisticOfLastOnline(days);
     }
 
     @Override
-    public void fullRegister(Long userId, UserUpdateReq updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+    public void fullRegister(Long userId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
         log.info("Foydalanuvchi to'liq registratsiyadan o'tmoqda: ID - {}", userId);
         UserEntity user = findById(userId);
 

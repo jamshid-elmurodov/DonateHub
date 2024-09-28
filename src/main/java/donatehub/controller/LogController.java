@@ -1,7 +1,7 @@
 package donatehub.controller;
 
-import donatehub.domain.response.LogDataRes;
-import donatehub.domain.response.LogRes;
+import donatehub.domain.response.LogDataResponse;
+import donatehub.domain.response.LogResponse;
 import donatehub.utils.LogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,7 @@ import java.util.List;
 @Tag(name = "Log", description = "Log fayllarni boshqarish uchun API metodlari")
 public class LogController {
     private final LogService logService;
-    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");
+    private final Logger log;
 
     @GetMapping
     @Operation(
@@ -37,7 +36,7 @@ public class LogController {
                     @ApiResponse(responseCode = "500", description = "Server xatosi yuz berdi")
             }
     )
-    public List<LogRes> fileList() {
+    public List<LogResponse> fileList() {
         log.info("Loglar ro'yxati olinmoqda");
         return logService.getLogFileList();
     }
@@ -55,7 +54,7 @@ public class LogController {
                     @ApiResponse(responseCode = "500", description = "Server xatosi yuz berdi")
             }
     )
-    public List<LogDataRes> getDataOfLog(@PathVariable String fileName) {
+    public List<LogDataResponse> getDataOfLog(@PathVariable String fileName) {
         log.info("Log fayl ma'lumotlari olinmoqda: fayl nomi {}", fileName);
         return logService.getDataOfLog(fileName);
     }

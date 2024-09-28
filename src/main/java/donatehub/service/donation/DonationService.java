@@ -1,18 +1,17 @@
 package donatehub.service.donation;
 
 import org.springframework.data.domain.Page;
-import donatehub.domain.entity.UserEntity;
-import donatehub.domain.enums.PaymentMethod;
-import donatehub.domain.response.CreateDonateRes;
-import donatehub.domain.response.FullStatisticRes;
-import donatehub.domain.response.DonationStatisticRes;
-import donatehub.domain.projection.DonationInfo;
-import donatehub.domain.request.DonationCreateReq;
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.constants.PaymentMethod;
+import donatehub.domain.response.CreateDonateResponse;
+import donatehub.domain.response.DonationStatisticResponse;
+import donatehub.domain.projections.DonationInfo;
+import donatehub.domain.request.DonationCreateRequest;
 
 import java.util.List;
 
 public interface DonationService {
-    CreateDonateRes donate(DonationCreateReq donateReq, Long streamerId);
+    CreateDonateResponse donate(DonationCreateRequest donateReq, Long streamerId);
 
     void complete(String body, PaymentMethod method);
 
@@ -20,9 +19,9 @@ public interface DonationService {
 
     Page<DonationInfo> getAllDonations(int page, int size);
 
-    List<DonationStatisticRes> getStatisticsForAdmin(int days);
+    List<DonationStatisticResponse> getStatisticsForAdmin(int days);
 
-    List<DonationStatisticRes> getStatisticsForStreamer(Long streamerId, int days);
+    List<DonationStatisticResponse> getStatisticsForStreamer(Long streamerId, int days);
 
-    void testDonate(DonationCreateReq donationCreateReq, Long streamerId, UserEntity user);
+    void testDonate(DonationCreateRequest donationCreateRequest, Long streamerId, UserEntity user);
 }

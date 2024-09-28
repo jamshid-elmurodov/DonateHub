@@ -1,6 +1,6 @@
 package donatehub.controller;
 
-import donatehub.domain.model.ExceptionRes;
+import donatehub.domain.response.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,11 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import donatehub.domain.enums.WithdrawStatus;
-import donatehub.domain.model.PagedRes;
-import donatehub.domain.projection.WithdrawInfo;
+import donatehub.domain.constants.WithdrawStatus;
+import donatehub.domain.response.PagedResponse;
+import donatehub.domain.projections.WithdrawInfo;
 import donatehub.service.withdraw.WithdrawService;
 
 /**
@@ -25,7 +24,7 @@ import donatehub.service.withdraw.WithdrawService;
 @Tag(name = "Withdraw", description = "Pul chiqarish so'rovlarini boshqarish uchun API.")
 public class WithdrawController {
     private final WithdrawService withdrawService;
-    private Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");
+    private final Logger log;
 
     @Operation(
             summary = "Foydalanuvchilar uchun pul chiqarish so'rovini yaratadi",
@@ -37,9 +36,9 @@ public class WithdrawController {
             },
             responses = {
                     @ApiResponse(responseCode = "201", description = "Pul chiqarish so'rovi muvaffaqiyatli yaratildi"),
-                    @ApiResponse(responseCode = "400", description = "Noto'g'ri so'rov ma'lumotlari", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "404", description = "Streamer topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "400", description = "Noto'g'ri so'rov ma'lumotlari", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Streamer topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @PostMapping("/{streamerId}")
@@ -57,8 +56,8 @@ public class WithdrawController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Withdraw statusi muvaffaqiyatli yangilandi"),
-                    @ApiResponse(responseCode = "404", description = "Withdraw so'rovi topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Withdraw so'rovi topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @PutMapping("/complete/{withdrawId}")
@@ -75,8 +74,8 @@ public class WithdrawController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Withdraw statusi muvaffaqiyatli yangilandi"),
-                    @ApiResponse(responseCode = "404", description = "Withdraw so'rovi topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Withdraw so'rovi topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @PutMapping("/cancel/{withdrawId}")
@@ -95,16 +94,16 @@ public class WithdrawController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Withdraw so'rovlari muvaffaqiyatli qaytarildi"),
-                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Noto'g'ri so'rov ma'lumotlari", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @GetMapping
-    public PagedRes<WithdrawInfo> getWithdrawsByStatus(
+    public PagedResponse<WithdrawInfo> getWithdrawsByStatus(
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam WithdrawStatus status) {
-        return new PagedRes<>(withdrawService.getWithdrawsByStatus(page, size, status));
+        return new PagedResponse<>(withdrawService.getWithdrawsByStatus(page, size, status));
     }
 
     @Operation(
@@ -118,16 +117,16 @@ public class WithdrawController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Withdraw so'rovlari muvaffaqiyatli qaytarildi"),
-                    @ApiResponse(responseCode = "404", description = "Streamer topilmadi yoki so'rovlar topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class))),
-                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionRes.class)))
+                    @ApiResponse(responseCode = "404", description = "Streamer topilmadi yoki so'rovlar topilmadi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     @GetMapping("/{streamerId}")
-    public PagedRes<WithdrawInfo> getWithdrawsOfStreamerByStatus(
+    public PagedResponse<WithdrawInfo> getWithdrawsOfStreamerByStatus(
             @PathVariable Long streamerId,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam WithdrawStatus status) {
-        return new PagedRes<>(withdrawService.getWithdrawsOfStreamerByStatus(streamerId, page, size, status));
+        return new PagedResponse<>(withdrawService.getWithdrawsOfStreamerByStatus(streamerId, page, size, status));
     }
 }

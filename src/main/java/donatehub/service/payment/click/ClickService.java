@@ -1,15 +1,15 @@
 package donatehub.service.payment.click;
 
-import donatehub.domain.request.ClickReq;
-import donatehub.domain.response.ClickRes;
-import donatehub.domain.response.PaymentRes;
+import donatehub.domain.request.ClickRequest;
+import donatehub.domain.response.ClickResponse;
+import donatehub.domain.response.PaymentResponse;
 
 public interface ClickService {
-    ClickRes prepare(ClickReq clickReq);
+    ClickResponse prepare(ClickRequest clickRequest);
 
-    void complete(ClickReq clickReq, Float donationAmount);
+    void complete(ClickRequest clickRequest, Float donationAmount);
 
-    PaymentRes create(Float amount);
+    PaymentResponse create(Float amount);
 
-    ClickReq readBody(String body);
+    ClickRequest readBody(String body);
 }

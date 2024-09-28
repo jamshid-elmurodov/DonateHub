@@ -1,9 +1,9 @@
 package donatehub.service.withdraw;
 
 import org.springframework.data.domain.Page;
-import donatehub.domain.entity.WithdrawEntity;
-import donatehub.domain.enums.WithdrawStatus;
-import donatehub.domain.projection.WithdrawInfo;
+import donatehub.domain.entities.WithdrawEntity;
+import donatehub.domain.constants.WithdrawStatus;
+import donatehub.domain.projections.WithdrawInfo;
 
 public interface WithdrawService {
     void create(Long streamerId, Float amount, String cardNumber);
