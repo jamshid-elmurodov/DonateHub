@@ -1,5 +1,6 @@
 package donatehub.domain.projections;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import donatehub.domain.entities.UserEntity;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public interface UserInfoForView {
 
     Boolean getEnable();
 
+    @JsonFormat(pattern = "dd/mm/yyyy HH:MM")
     LocalDateTime getLastOnlineAt();
 
     Float getBalance();

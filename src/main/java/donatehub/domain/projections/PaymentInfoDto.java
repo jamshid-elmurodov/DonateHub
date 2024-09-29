@@ -7,5 +7,6 @@ import donatehub.domain.entities.PaymentInfo;
  */
 public interface PaymentInfoDto {
     Float getAmount();
+
     Float getCommission();
 }

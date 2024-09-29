@@ -34,5 +34,5 @@ public interface UserService {
 
     List<UserStatisticResponse> getStatisticOfLastOnline(int days);
 
-    void fullRegister(Long userId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg);
+    void fullRegister(UserEntity user, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg);
 }

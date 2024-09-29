@@ -9,16 +9,13 @@ import donatehub.domain.entities.DonationEntity;
 import donatehub.domain.projections.DonationStatisticResponse;
 import donatehub.domain.projections.DonationInfo;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface DonationRepository extends JpaRepository<DonationEntity, Long> {
     Optional<DonationEntity> findByPaymentInfoPaymentId(String paymentInfo_id);
 
-    Page<DonationInfo> getAllByStreamerIdAndCompletedIsTrue(Long streamer_id, Pageable pageable);
-
-    Page<DonationInfo> getAllByCompletedIsTrue(Pageable pageable);
+    Page<DonationInfo> getAllByStreamerIdAndCompletedIsTrueOrderByUpdateAt(Long streamer_id, Pageable pageable);
 
     @Query(
             value = "SELECT date_trunc('month', days) AS day, SUM(dt.amount) AS amount " +

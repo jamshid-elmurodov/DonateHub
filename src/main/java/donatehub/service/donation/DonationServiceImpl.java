@@ -26,7 +26,6 @@ import donatehub.utils.BotExecutor;
 import donatehub.service.user.UserService;
 import donatehub.service.widget.WidgetService;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -157,9 +156,9 @@ public class DonationServiceImpl implements DonationService {
     private void executeToStream(DonationEntity donation) {
         log.info("Donatni jonli efirga uzatish: {}", donation);
 
-        WidgetEntity widget = widgetService.getDonationWidgetOfStreamer(donation.getStreamer().getId());
+        WidgetEntity widget = widgetService.getWidgetOfStreamer(donation.getStreamer().getId(), donation.getPaymentInfo().getAmount());
 
-        messagingTemplate.convertAndSend("/topic/donation/" + donation.getStreamer().getApi(),
+        messagingTemplate.convertAndSend("/topic/donation/" + donation.getStreamer().getToken(),
                 new DonationResponse(donation.getDonaterName(), donation.getMessage(),
                         donation.getPaymentInfo().getAmount(), widget.getVideoUrl(), widget.getAudioUrl()));
     }
@@ -187,18 +186,11 @@ public class DonationServiceImpl implements DonationService {
 
         UserEntity user = userService.findById(streamerId);
 
-        return repo.getAllByStreamerIdAndCompletedIsTrue(user.getId(), PageRequest.of(page, size));
+        return repo.getAllByStreamerIdAndCompletedIsTrueOrderByUpdateAt(user.getId(), PageRequest.of(page, size));
     }
 
     @Override
-    public Page<DonationInfo> getAllDonations(int page, int size) {
-        log.info("Barcha donatlar so'ralmoqda");
-
-        return repo.getAllByCompletedIsTrue(PageRequest.of(page, size));
-    }
-
-    @Override
-    public List<DonationStatisticResponse> getStatisticsForAdmin(int days) {
+    public List<DonationStatisticResponse> getDonationStatistics(int days) {
         log.info("Admin uchun {} kunlik statistika so'ralmoqda", days);
 
         if (days > 30){
@@ -209,7 +201,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<DonationStatisticResponse> getStatisticsForStreamer(Long streamerId, int days) {
+    public List<DonationStatisticResponse> getDonationStatisticsOfStreamer(Long streamerId, int days) {
         log.info("Streamer ID: {} uchun {} kunlik statistika so'ralmoqda", streamerId, days);
 
         UserEntity user = userService.findById(streamerId);
@@ -218,18 +210,11 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public void testDonate(DonationCreateRequest donationCreateRequest, Long streamerId, UserEntity user) {
-        log.info("Test donat amalga oshirilyapti: {}", streamerId);
-
-        if (!user.getId().equals(streamerId)) {
-            throw new BaseException(
-                    "Faqat streamerning o'zi test donate amalga oshirishi mumkin",
-                    HttpStatus.FORBIDDEN
-            );
-        }
+    public void testDonate(DonationCreateRequest donationCreateRequest, UserEntity streamer) {
+        log.info("Test donat amalga oshirilyapti: {}", streamer.getId());
 
         executeToStream(new DonationEntity(
-                userService.findById(streamerId),
+                streamer,
                 donationCreateRequest.getDonaterName(),
                 donationCreateRequest.getMessage(),
                 true,

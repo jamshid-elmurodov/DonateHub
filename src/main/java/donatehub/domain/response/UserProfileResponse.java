@@ -20,6 +20,7 @@ public class UserProfileResponse {
         this.channelName = user.getChannelName();
         this.profileImgUrl = user.getProfileImgUrl();
         this.bannerImgUrl = user.getBannerImgUrl();
+        this.token = user.getToken();
         this.online = user.getOnline();
         this.enable = user.getEnable();
         this.balance = user.getBalance();
@@ -40,6 +41,8 @@ public class UserProfileResponse {
     private String profileImgUrl;
 
     private String bannerImgUrl;
+
+    private String token;
 
     private Boolean online;
 

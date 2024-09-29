@@ -162,22 +162,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void fullRegister(Long userId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
-        log.info("Foydalanuvchi to'liq registratsiyadan o'tmoqda: ID - {}", userId);
-
-        UserEntity user = findById(userId);
+    public void fullRegister(UserEntity user, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+        log.info("Foydalanuvchi to'liq registratsiyadan o'tmoqda: ID - {}", user.getId());
 
         user.setRole(STREAMER);
         user.setFullRegisteredAt(LocalDateTime.now());
 
         this.update(
-                userId,
+                user.getId(),
                 updateReq,
                 profileImg,
                 bannerImg
         );
 
-        log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", userId);
+        log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", user.getId());
     }
 }
-

@@ -58,7 +58,7 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private String api;
+    private String token;
 
     private Boolean online;
 
@@ -95,7 +95,7 @@ public class UserEntity implements UserDetails {
                 .username(authRequest.getUsername())
                 .balance(0f)
                 .role(UserRole.STREAMER)
-                .api(UUID.randomUUID().toString())
+                .token(UUID.randomUUID().toString())
                 .lastOnlineAt(LocalDateTime.now())
                 .build();
     }

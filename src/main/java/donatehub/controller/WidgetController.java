@@ -1,5 +1,8 @@
 package donatehub.controller;
 
+import donatehub.domain.entities.UserEntity;
+import donatehub.domain.projections.WidgetInfo;
+import donatehub.domain.request.WidgetCreateRequest;
 import donatehub.domain.response.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,9 +11,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import donatehub.service.widget.WidgetService;
+
+import java.util.List;
 
 /**
  * WidgetController - Widget (vidjet) ma'lumotlarini boshqarish uchun REST API.
@@ -37,11 +43,28 @@ public class WidgetController {
                     @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
-    @PutMapping("/{streamerId}")
-    public void update(@PathVariable Long streamerId,
+    @PutMapping("/{widgetId}")
+    public void update(@PathVariable Long widgetId,
                        @RequestParam MultipartFile videoFile,
-                       @RequestParam MultipartFile audioFile) {
-        widgetService.update(streamerId, videoFile, audioFile);
+                       @RequestParam MultipartFile audioFile,
+                       @AuthenticationPrincipal UserEntity user) {
+        widgetService.update(widgetId, videoFile, audioFile, user.getId());
+    }
+
+    @Operation(
+            summary = "Widget yaratish"
+    )
+    @PostMapping
+    public void create(@RequestPart WidgetCreateRequest widgetCreateRequest,
+                       @RequestPart MultipartFile video,
+                       @RequestPart MultipartFile audio,
+                       @AuthenticationPrincipal UserEntity user){
+        widgetService.create(user.getId(), widgetCreateRequest, video, audio);
+    }
+
+    @GetMapping
+    public List<WidgetInfo> getWidgetsOfStreamer(@AuthenticationPrincipal UserEntity user){
+        return widgetService.getAllByStreamerId(user.getId());
     }
 }
 

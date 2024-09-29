@@ -210,12 +210,12 @@ public class UserController {
                     @ApiResponse(responseCode = "500", description = "Serverda xato yuz berdi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
-    @PutMapping("/register/{streamerId}")
-    public void fullRegister(@PathVariable Long streamerId,
-                             @RequestPart UserUpdateRequest updateReq,
+    @PutMapping("/register")
+    public void fullRegister(@RequestPart UserUpdateRequest updateReq,
                              @RequestPart("profileImg") MultipartFile profileImg,
-                             @RequestPart("bannerImg") MultipartFile bannerImg){
-        userService.fullRegister(streamerId, updateReq, profileImg, bannerImg);
+                             @RequestPart("bannerImg") MultipartFile bannerImg,
+                             @AuthenticationPrincipal UserEntity user){
+        userService.fullRegister(user, updateReq, profileImg, bannerImg);
     }
 
     @Operation(

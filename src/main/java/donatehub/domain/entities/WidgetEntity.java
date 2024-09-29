@@ -1,21 +1,22 @@
 package donatehub.domain.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity(name = "widgets_table")
 
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"streamer_id", "minDonateAmount"})
+})
+
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class WidgetEntity extends BaseEntity {
-    @Column(name = "stremaer_id")
-    private Long streamerId;
+    @ManyToOne
+    private UserEntity streamer;
 
     @Column(name = "video_url")
     private String videoUrl;
@@ -24,4 +25,7 @@ public class WidgetEntity extends BaseEntity {
     private String audioUrl;
 
     private Integer time;
+
+    @Column(name = "min_donate_amount")
+    private Float minDonateAmount;
 }

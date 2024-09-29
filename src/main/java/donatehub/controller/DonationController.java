@@ -104,25 +104,6 @@ public class DonationController {
         return new PagedResponse<>(donationService.getDonationsOfStreamer(streamerId, page, size));
     }
 
-    @GetMapping
-    @Operation(
-            summary = "Barcha donatsiyalarni olish",
-            description = "Ushbu metod barcha donatsiyalarni sahifalab qaytaradi.",
-            parameters = {
-                    @Parameter(name = "page", description = "Sahifa raqami", required = true),
-                    @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true)
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Barcha donatsiyalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PagedResponse.class)))
-            }
-    )
-    public PagedResponse<DonationInfo> getAllDonations(
-            @RequestParam int page,
-            @RequestParam int size
-    ) {
-        return new PagedResponse<>(donationService.getAllDonations(page, size));
-    }
-
     @GetMapping("/statistics")
     @Operation(
             summary = "Ma'mur uchun statistikalarni olish",
@@ -134,8 +115,8 @@ public class DonationController {
                     @ApiResponse(responseCode = "200", description = "Umumiy statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatisticResponse.class)))
             }
     )
-    public List<DonationStatisticResponse> getAllStatistics(@RequestParam int days) {
-        return donationService.getStatisticsForAdmin(days);
+    public List<DonationStatisticResponse> getStatistics(@RequestParam int days) {
+        return donationService.getDonationStatistics(days);
     }
 
     @GetMapping("/statistics/{streamerId}")
@@ -155,31 +136,26 @@ public class DonationController {
             @PathVariable Long streamerId,
             @RequestParam int days
     ) {
-        return donationService.getStatisticsForStreamer(streamerId, days);
+        return donationService.getDonationStatisticsOfStreamer(streamerId, days);
     }
 
-    @PostMapping("/test/{streamerId}")
+    @PostMapping("/test")
     @Operation(
             summary = "Test donatsiya yaratish",
             description = "Ushbu metod test maqsadlari uchun donatsiya yaratadi. Bu metod ishlab chiqish jarayonida foydalanish uchun mo'ljallangan.",
-            parameters = {
-                    @Parameter(name = "streamerId", description = "Streamer identifikatori", required = true),
-                    @Parameter(name = "user", description = "Autentifikatsiya qilingan foydalanuvchi", required = true)
-            },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Donatsiya yaratish uchun test so'rov ma'lumotlari",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationCreateRequest.class))
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Test donatsiya muvaffaqiyatli yaratildi"),
-                    @ApiResponse(responseCode = "404", description = "Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+                    @ApiResponse(responseCode = "500", description = "Server xatoligi", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
     public void createTestDonation(
-            @PathVariable Long streamerId,
             @AuthenticationPrincipal UserEntity user,
             @RequestBody DonationCreateRequest donationCreateRequest
     ) {
-        donationService.testDonate(donationCreateRequest, streamerId, user);
+        donationService.testDonate(donationCreateRequest, user);
     }
 }

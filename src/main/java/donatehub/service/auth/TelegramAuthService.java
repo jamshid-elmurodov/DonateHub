@@ -1,6 +1,7 @@
 package donatehub.service.auth;
 
 import donatehub.domain.request.RefreshTokenRequest;
+import donatehub.domain.request.WidgetCreateRequest;
 import donatehub.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -105,7 +106,7 @@ public class TelegramAuthService implements AuthService {
         UserEntity newUser = UserEntity.from(authRequest);
 
         userRepository.save(newUser);
-        widgetService.create(newUser);
+        widgetService.create(authRequest.getId(), new WidgetCreateRequest(1000f, 5), null, null);
 
         log.info("Yangi foydalanuvchi yaratildi va widget qo'shildi: {}", newUser);
 

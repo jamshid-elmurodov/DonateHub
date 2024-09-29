@@ -3,6 +3,7 @@ package donatehub.config.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,8 +20,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorization -> authorization
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers(
+                                "/api/v1/donation/statistics",
+                                "/api/v1/log/*",
+                                "/api/v1/info/**",
+                                "/api/v1/user/verified",
+                                "/api/v1/user/not-verified",
+                                "/api/v1/search",
+                                "/api/v1/user/enable/**",
+                                "/api/v1/user/disable/**",
+                                "/api/v1/user/statistic/register",
+                                "/api/v1/user/statistic/online",
+                                "/api/v1/withdraw/complete/**",
+                                "/api/v1/withdraw/cancel/**",
+                                "/api/v1/withdraw").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth", "/api/v1/donation/donate/**", "/api/v1/donation/complete/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
