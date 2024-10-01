@@ -1,7 +1,6 @@
 package donatehub.domain.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -30,14 +29,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handler(AccessDeniedException ex) {
-        logger.error("Access denied: {}", ex.getMessage());
+        logger.error("Access denied: \n{}, status: {}", ex.getMessage(), HttpStatus.FORBIDDEN);
 
         return new ResponseEntity<>("Siz ushbu resursga kirishga ruxsat etilmagan", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ExceptionResponse> handler(BaseException e){
-        logger.error("BaseException: {}", e.getMessage());
+        logger.error("BaseException: \n{}, status: {}", e.getMessage(), e.getStatus());
         return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), e.getStatus());
     }
 
@@ -46,33 +45,33 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = e.getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage));
 
-        logger.error("MethodArgumentNotValidException: {}", errors);
+        logger.error("MethodArgumentNotValidException: \n{}, status: {}", errors, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-        logger.error("IllegalArgumentException: {}", e.getMessage());
+        logger.error("IllegalArgumentException: \n{}, status: {}", e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 
         return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        logger.error("HttpMessageNotReadableException: {}", ex.getMessage());
+        logger.error("HttpMessageNotReadableException: \n{}, status: {}", ex.getMessage(), HttpStatus.BAD_REQUEST);
 
         return ResponseEntity.badRequest().body("Invalid input: " + ex.getMessage());
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ExceptionResponse> handler(ExpiredJwtException e){
-        logger.error("ExpiredJwtException: {}", e.getMessage());
+        logger.error("ExpiredJwtException: \n{} \nstatus: {}", e.getMessage(), HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(new ExceptionResponse("Token eskirgan"), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handler(Exception e){
-        logger.error("Boshqa exception: {}", e.getMessage());
+        logger.error("Exception: \n{} \nstatus: {}", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 
         return new ResponseEntity<>(new ExceptionResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }

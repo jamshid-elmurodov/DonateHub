@@ -1,5 +1,7 @@
 package donatehub.service.withdraw;
 
+import donatehub.domain.embeddables.WithdrawPayment;
+import donatehub.domain.projections.WithdrawFullStatistic;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
@@ -27,25 +29,24 @@ public class WithdrawServiceImpl implements WithdrawService {
 
         UserEntity user = userService.findById(streamerId);
 
-        if (user.getBalance() < amount + getCommission(amount)) {
-            log.error("Balansda mablag' yetarli emas: userId - {}, neededAmount - {}", streamerId, amount + getCommission(amount));
+        Float commission = getCommission(amount);
+
+        if (user.getBalance() < amount + commission) {
+            log.error("Balansda mablag' yetarli emas: userId - {}, neededAmount - {}", streamerId, amount + commission);
 
             throw new BaseException(
-                    "Balansingizda mablag' yetarli emas",
+                    "Balansingizda mablag' yetarli emas: miqdor - " + user.getBalance() + " so'm, kommissiya - " + commission + " so'm",
                     HttpStatus.BAD_REQUEST
             );
         }
 
-        WithdrawEntity withdrawEntity = new WithdrawEntity(
+        WithdrawEntity saved = repo.save(new WithdrawEntity(
                 user,
-                cardNumber,
-                amount,
+                new WithdrawPayment(cardNumber, amount, commission),
                 WithdrawStatus.PENDING
-        );
+        ));
 
-        repo.save(withdrawEntity);
-
-        log.info("Chiqarish so'rovi yaratildi: {}", withdrawEntity);
+        log.info("Chiqarish so'rovi yaratildi: {}", saved.getId());
     }
 
     @Override
@@ -72,11 +73,6 @@ public class WithdrawServiceImpl implements WithdrawService {
         );
     }
 
-    private Float getCommission(Float amount) {
-        log.info("Komissiyani hisoblanmoqda: amount - {}", amount);
-        return amount / 100 * 3f;
-    }
-
     @Override
     public Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, WithdrawStatus status) {
         log.info("Holat bo'yicha chiqarish so'rovlarini olish: status - {}, page - {}, size - {}", status, page, size);
@@ -87,5 +83,15 @@ public class WithdrawServiceImpl implements WithdrawService {
     public Page<WithdrawInfo> getWithdrawsOfStreamerByStatus(Long streamerId, int page, int size, WithdrawStatus status) {
         log.info("Streamer bo'yicha holat bo'yicha chiqarish so'rovlarini olish: streamerId - {}, status - {}, page - {}, size - {}", streamerId, status, page, size);
         return repo.getAllByStreamerIdAndStatusOrderByCreatedAt(streamerId, status, PageRequest.of(page, size));
+    }
+
+    @Override
+    public WithdrawFullStatistic getFullStatistic() {
+        return repo.getFullStatistic();
+    }
+
+    private Float getCommission(Float amount) {
+        log.info("Komissiyani hisoblanmoqda: amount - {}", amount);
+        return amount / 100 * 3f;
     }
 }

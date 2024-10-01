@@ -22,6 +22,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorization -> authorization
                         .requestMatchers(
                                 "/api/v1/donation/statistics",
+                                "/api/v1/donation/full-statistic",
                                 "/api/v1/log/*",
                                 "/api/v1/info/**",
                                 "/api/v1/user/verified",
@@ -31,11 +32,14 @@ public class SecurityConfig {
                                 "/api/v1/user/disable/**",
                                 "/api/v1/user/statistic/register",
                                 "/api/v1/user/statistic/online",
+                                "/api/v1/user/full-statistic",
                                 "/api/v1/withdraw/complete/**",
                                 "/api/v1/withdraw/cancel/**",
-                                "/api/v1/withdraw").hasRole("ADMIN")
+                                "/api/v1/withdraw",
+                                "/api/v1/withdraw/full-statistic").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth", "/api/v1/donation/donate/**", "/api/v1/donation/complete/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 

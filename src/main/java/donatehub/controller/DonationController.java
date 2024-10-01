@@ -1,5 +1,6 @@
 package donatehub.controller;
 
+import donatehub.domain.projections.DonationFullStatistic;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,7 +22,7 @@ import donatehub.domain.projections.DonationInfo;
 import donatehub.domain.request.DonationCreateRequest;
 import donatehub.domain.response.ExceptionResponse;
 import donatehub.domain.response.CreateDonateResponse;
-import donatehub.domain.projections.DonationStatisticResponse;
+import donatehub.domain.projections.DonationStatistic;
 import donatehub.service.donation.DonationService;
 
 import java.util.List;
@@ -104,7 +105,7 @@ public class DonationController {
         return new PagedResponse<>(donationService.getDonationsOfStreamer(streamerId, page, size));
     }
 
-    @GetMapping("/statistics")
+    @GetMapping("/statistic")
     @Operation(
             summary = "Ma'mur uchun statistikalarni olish",
             description = "Ushbu metod ma'mur uchun umumiy statistikalar ro'yxatini qaytaradi.",
@@ -112,14 +113,14 @@ public class DonationController {
                     @Parameter(name = "days", description = "So'rov qilinayotgan statistikalar uchun kunlar soni", required = true)
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Umumiy statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatisticResponse.class)))
+                    @ApiResponse(responseCode = "200", description = "Umumiy statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatistic.class)))
             }
     )
-    public List<DonationStatisticResponse> getStatistics(@RequestParam int days) {
+    public List<DonationStatistic> getStatistic(@RequestParam int days) {
         return donationService.getDonationStatistics(days);
     }
 
-    @GetMapping("/statistics/{streamerId}")
+    @GetMapping("/statistic/{streamerId}")
     @Operation(
             summary = "Streamer uchun statistikalarni olish",
             description = "Ushbu metod berilgan streamer uchun statistikalarni ro'yxatini qaytaradi.",
@@ -128,11 +129,11 @@ public class DonationController {
                     @Parameter(name = "days", description = "So'rov qilinayotgan statistikalar uchun kunlar soni", required = true)
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Streamer uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatisticResponse.class))),
+                    @ApiResponse(responseCode = "200", description = "Streamer uchun statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationStatistic.class))),
                     @ApiResponse(responseCode = "404", description = "Streamer topilmasa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             }
     )
-    public List<DonationStatisticResponse> getStatisticsOfStreamer(
+    public List<DonationStatistic> getStatisticOfStreamer(
             @PathVariable Long streamerId,
             @RequestParam int days
     ) {
@@ -157,5 +158,17 @@ public class DonationController {
             @RequestBody DonationCreateRequest donationCreateRequest
     ) {
         donationService.testDonate(donationCreateRequest, user);
+    }
+
+    @GetMapping("/full-statistic")
+    @Operation(
+            summary = "Umumiy statistikani olish",
+            description = "Ushbu metod umumiy statistikani ro'yxatini qaytaradi.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Umumiy statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DonationFullStatistic.class)))
+            }
+    )
+    public DonationFullStatistic getFullStatistic() {
+        return donationService.getFullStatistic();
     }
 }

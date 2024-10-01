@@ -18,5 +18,5 @@ public interface DonationInfo {
 
     String getMessage();
 
-    PaymentInfoDto getPaymentInfo();
+    DonationPaymentInfo getPayment();
 }

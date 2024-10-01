@@ -7,6 +7,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +20,16 @@ import donatehub.service.user.UserService;
 import java.io.IOException;
 
 @Component
-@AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserService userService;
+    private final Logger logger;
+
+    public JwtFilter(JwtProvider jwtProvider, UserService userService, @Qualifier("log") Logger logger) {
+        this.jwtProvider = jwtProvider;
+        this.userService = userService;
+        this.logger = logger;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -30,6 +38,11 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("Authorization");
 
+        String clientIp = request.getRemoteAddr();
+        String requestUri = request.getRequestURI();
+
+        logger.info("Client IP: {} \n Request URI: {}", clientIp, requestUri);
+
         if (token != null && token.startsWith("Bearer ")) {
             String subToken = token.substring(7);
             Long userId = jwtProvider.extractUserId(subToken);
@@ -37,17 +50,15 @@ public class JwtFilter extends OncePerRequestFilter {
             UserEntity user = userService.findById(userId);
 
             if (user.getFullRegisteredAt() == null) {
-                throw new BaseException(
-                    "Siz to'liq registratsiyadan o'tmagansiz iltimos registratsiyani amalga oshiring",
-                    HttpStatus.CONFLICT
-                );
+                response.setStatus(HttpStatus.CONFLICT.value());
+                response.getWriter().write("Siz to'liq registratsiyadan o'tmagansiz iltimos registratsiyani amalga oshiring");
+                return;
             }
 
             if (!user.getEnable()) {
-                throw new BaseException(
-                        "Siz hali admin tomonidan tasdiqlanmadingiz iltimos admin javobini kuting",
-                        HttpStatus.BAD_REQUEST
-                );
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
+                response.getWriter().write("Siz hali admin tomonidan tasdiqlanmadingiz iltimos admin javobini kuting");
+                return;
             }
 
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(

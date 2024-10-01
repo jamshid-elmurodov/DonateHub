@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public abstract class BaseEntity extends AuditingEntityListener {
+public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

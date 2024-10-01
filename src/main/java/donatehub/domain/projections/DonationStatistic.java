@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
-public interface DonationStatisticResponse {
+public interface DonationStatistic {
     @JsonFormat(pattern = "dd/MM")
     LocalDate getDay();
 

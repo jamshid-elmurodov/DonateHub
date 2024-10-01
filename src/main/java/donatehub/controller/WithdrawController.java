@@ -1,5 +1,6 @@
 package donatehub.controller;
 
+import donatehub.domain.projections.WithdrawFullStatistic;
 import donatehub.domain.response.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -128,5 +129,16 @@ public class WithdrawController {
             @RequestParam int size,
             @RequestParam WithdrawStatus status) {
         return new PagedResponse<>(withdrawService.getWithdrawsOfStreamerByStatus(streamerId, page, size, status));
+    }
+
+    @GetMapping("/full-statistic")
+    @Operation(
+            summary = "Adming uchun withdraw statistikasini olish",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Withdraw statistikasi muvaffaqiyatli olingan", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WithdrawFullStatistic.class))),
+            }
+    )
+    public WithdrawFullStatistic getFullStatistic() {
+        return withdrawService.getFullStatistic();
     }
 }

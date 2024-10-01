@@ -1,5 +1,6 @@
 package donatehub.domain.entities;
 
+import donatehub.domain.embeddables.DonationPayment;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -25,5 +26,5 @@ public class DonationEntity extends BaseEntity {
     private Boolean completed;
 
     @Embedded
-    private PaymentInfo paymentInfo;
+    private DonationPayment payment;
 }

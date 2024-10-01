@@ -1,12 +1,9 @@
 package donatehub.service.user;
 
-import donatehub.domain.projections.UserInfoForView;
-import donatehub.domain.projections.UserStatisticResponse;
+import donatehub.domain.projections.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import donatehub.domain.entities.UserEntity;
-import donatehub.domain.projections.UserInfoForDonate;
-import donatehub.domain.projections.UserInfo;
 import donatehub.domain.request.UserUpdateRequest;
 
 import java.util.List;
@@ -30,9 +27,13 @@ public interface UserService {
 
     void setOnline(Long streamerId, boolean action);
 
-    List<UserStatisticResponse> getStatisticsOfRegister(int days);
+    List<UserStatistic> getStatisticsOfRegister(int days);
 
-    List<UserStatisticResponse> getStatisticOfLastOnline(int days);
+    List<UserStatistic> getStatisticOfLastOnline(int days);
 
     void fullRegister(UserEntity user, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg);
+
+    UserFullStatistic getFullStatistic();
+
+    ProfitStatistic getProfitStatistic();
 }

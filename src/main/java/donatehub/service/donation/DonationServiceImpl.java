@@ -1,7 +1,8 @@
 package donatehub.service.donation;
 
-import donatehub.domain.entities.PaymentInfo;
-import donatehub.domain.projections.DonationStatisticResponse;
+import donatehub.domain.embeddables.DonationPayment;
+import donatehub.domain.projections.DonationFullStatistic;
+import donatehub.domain.projections.DonationStatistic;
 import donatehub.domain.response.*;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
@@ -70,25 +71,25 @@ public class DonationServiceImpl implements DonationService {
             );
         }
 
-        var paymentInfo = PaymentInfo.builder()
+        var payment = DonationPayment.builder()
                 .amount(donateReq.getAmount())
                 .commission(getCommission(donateReq))
                 .build();
 
         var paymentResponse = switch (donateReq.getMethod()) {
-            case CLICK -> clickService.create(donateReq.getAmount() + paymentInfo.getCommission());
-            case MIRPAY -> mirPayService.create(donateReq.getAmount() + paymentInfo.getCommission());
+            case CLICK -> clickService.create(donateReq.getAmount() + payment.getCommission());
+            case MIRPAY -> mirPayService.create(donateReq.getAmount() + payment.getCommission());
         };
 
-        paymentInfo.setPaymentId(paymentResponse.getId());
+        payment.setPaymentId(paymentResponse.getId());
 
-        log.info("Donat saqlanmoqda: {}", paymentInfo.getPaymentId());
+        log.info("Donat saqlanmoqda: {}", payment.getPaymentId());
         repo.save(DonationEntity.builder()
                 .donaterName(donateReq.getDonaterName())
                 .completed(false)
                 .message(donateReq.getMessage())
                 .streamer(userService.findById(streamerId))
-                .paymentInfo(paymentInfo)
+                .payment(payment)
                 .build());
 
         return new CreateDonateResponse(paymentResponse.getRedirectUrl());
@@ -119,7 +120,7 @@ public class DonationServiceImpl implements DonationService {
 
         donation = getDonationByPaymentId(String.valueOf(clickRequest.getClickTransId()));
 
-        clickService.complete(clickRequest, donation.getPaymentInfo().getAmount());
+        clickService.complete(clickRequest, donation.getPayment().getAmount());
         return donation;
     }
 
@@ -141,7 +142,7 @@ public class DonationServiceImpl implements DonationService {
 
         log.info("Streamer balansini qayta hisoblanmoqda: {}", donation.getStreamer().getId());
 
-        userService.recalculateStreamerBalance(donation.getStreamer().getId(), donation.getPaymentInfo().getAmount());
+        userService.recalculateStreamerBalance(donation.getStreamer().getId(), donation.getPayment().getAmount());
 
         if (userService.findById(donation.getStreamer().getId()).getOnline()) {
             log.info("Streamer onlayn, donatni jonli efirga uzatilmoqda: {}", donation.getStreamer().getId());
@@ -156,17 +157,17 @@ public class DonationServiceImpl implements DonationService {
     private void executeToStream(DonationEntity donation) {
         log.info("Donatni jonli efirga uzatish: {}", donation);
 
-        WidgetEntity widget = widgetService.getWidgetOfStreamer(donation.getStreamer().getId(), donation.getPaymentInfo().getAmount());
+        WidgetEntity widget = widgetService.getWidgetOfStreamer(donation.getStreamer().getId(), donation.getPayment().getAmount());
 
         messagingTemplate.convertAndSend("/topic/donation/" + donation.getStreamer().getToken(),
                 new DonationResponse(donation.getDonaterName(), donation.getMessage(),
-                        donation.getPaymentInfo().getAmount(), widget.getVideoUrl(), widget.getAudioUrl()));
+                        donation.getPayment().getAmount(), widget.getVideoUrl(), widget.getAudioUrl()));
     }
 
     private DonationEntity getDonationByPaymentId(String paymentId) {
         log.info("To'lov ID orqali donatni topish: {}", paymentId);
 
-        return repo.findByPaymentInfoPaymentId(paymentId).orElseThrow(
+        return repo.findByPaymentPaymentId(paymentId).orElseThrow(
                 () -> new BaseException(
                         "Donat topilmadi paymentId: " + paymentId,
                         HttpStatus.NOT_FOUND
@@ -190,7 +191,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<DonationStatisticResponse> getDonationStatistics(int days) {
+    public List<DonationStatistic> getDonationStatistics(int days) {
         log.info("Admin uchun {} kunlik statistika so'ralmoqda", days);
 
         if (days > 30){
@@ -201,7 +202,7 @@ public class DonationServiceImpl implements DonationService {
     }
 
     @Override
-    public List<DonationStatisticResponse> getDonationStatisticsOfStreamer(Long streamerId, int days) {
+    public List<DonationStatistic> getDonationStatisticsOfStreamer(Long streamerId, int days) {
         log.info("Streamer ID: {} uchun {} kunlik statistika so'ralmoqda", streamerId, days);
 
         UserEntity user = userService.findById(streamerId);
@@ -218,7 +219,12 @@ public class DonationServiceImpl implements DonationService {
                 donationCreateRequest.getDonaterName(),
                 donationCreateRequest.getMessage(),
                 true,
-                new PaymentInfo("test", donationCreateRequest.getAmount(), 0f)
+                new DonationPayment("test", donationCreateRequest.getAmount(), 0f)
         ));
+    }
+
+    @Override
+    public DonationFullStatistic getFullStatistic() {
+        return repo.getFullStatistic();
     }
 }

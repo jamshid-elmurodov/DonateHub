@@ -15,9 +15,7 @@ public interface WithdrawInfo {
     @JsonFormat(pattern = "dd/mm/yyyy HH:MM")
     LocalDateTime getCreatedAt();
 
-    String getCardNumber();
-
-    Integer getAmount();
+    WithdrawPaymentInfo getPayment();
 
     WithdrawStatus getStatus();
 

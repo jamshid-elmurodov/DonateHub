@@ -18,7 +18,7 @@ public class JwtProvider {
     @Value("${jwt.refresh.hours}")
     private int refreshHours;
 
-    public String generateToken(Long id) {
+    public String generateAccessToken(Long id) {
         return Jwts.builder()
                 .issuedAt(new Date())
                 .signWith(Keys.hmacShaKeyFor(key.getBytes()))

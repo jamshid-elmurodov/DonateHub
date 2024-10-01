@@ -1,14 +1,11 @@
 package donatehub.repo;
 
-import donatehub.domain.projections.UserInfoForView;
+import donatehub.domain.projections.*;
 import donatehub.domain.constants.UserRole;
-import donatehub.domain.projections.UserStatisticResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import donatehub.domain.entities.UserEntity;
-import donatehub.domain.projections.UserInfoForDonate;
-import donatehub.domain.projections.UserInfo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,7 +30,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                     "ORDER BY days",
             nativeQuery = true
     )
-    List<UserStatisticResponse> getStatisticOfRegister(@Param("days") int days);
+    List<UserStatistic> getStatisticOfRegister(@Param("days") int days);
 
     @Query(
             value = "SELECT days AS day, COALESCE(COUNT(us.*), 0) as count " +
@@ -43,5 +40,32 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                     "ORDER BY days",
             nativeQuery = true
     )
-    List<UserStatisticResponse> getStatisticOfLastOnline(@Param("days") int days);
+    List<UserStatistic> getStatisticOfLastOnline(@Param("days") int days);
+
+    @Query(
+            value = """
+                select
+                    count(*) as totalCount,
+                    count(case when enable = true then 1 end) as enableTotalCount,
+                    count(case when created_at >= CURRENT_DATE then 1 end) as dailyTotalCount,
+                    count(case when enable = true and created_at >= CURRENT_DATE then 1 end) as dailyEnableTotalCount
+                from users_table
+                """,
+            nativeQuery = true
+    )
+    UserFullStatistic getFullStatistic();
+
+    @Query(
+            value = """
+            select
+                coalesce(sum(case when d.completed = true then d.commission end), 0) as donationCommissionsAmount,
+                coalesce(sum(case when w.status = 'COMPLETED' then w.commission end), 0) as withdrawCommissionsAmount,
+                coalesce(sum(u.balance), 0) as currentStreamersBalance
+            from users_table u
+            left join donations_table d on u.id = d.streamer_id
+            left join withdraws_table w on u.id = w.streamer_id
+            """,
+            nativeQuery = true
+    )
+    ProfitStatistic getProfitStatistic();
 }

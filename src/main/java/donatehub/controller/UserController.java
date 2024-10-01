@@ -1,9 +1,8 @@
 package donatehub.controller;
 
 import donatehub.domain.entities.UserEntity;
-import donatehub.domain.projections.UserInfoForView;
+import donatehub.domain.projections.*;
 import donatehub.domain.response.UserProfileResponse;
-import donatehub.domain.projections.UserStatisticResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,9 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import donatehub.domain.projections.UserInfoForDonate;
 import donatehub.domain.response.PagedResponse;
-import donatehub.domain.projections.UserInfo;
 import donatehub.domain.request.UserUpdateRequest;
 import donatehub.domain.response.ExceptionResponse;
 import donatehub.service.user.UserService;
@@ -178,7 +175,7 @@ public class UserController {
             parameters = @Parameter(name = "days", description = "So'rov qilinayotgan kunlar soni", required = true)
     )
     @GetMapping("/statistic/register")
-    public List<UserStatisticResponse> getStatisticsOfRegister(@RequestParam int days){
+    public List<UserStatistic> getStatisticsOfRegister(@RequestParam int days){
         return userService.getStatisticsOfRegister(days);
     }
 
@@ -188,7 +185,7 @@ public class UserController {
             parameters = @Parameter(name = "days", description = "So'rov qilinayotgan kunlar soni. Masalan, 30 - o'tgan 30 kunlik davr uchun", required = true, example = "30")
     )
     @GetMapping("/statistic/online")
-    public List<UserStatisticResponse> getStatisticOfLastOnline(@RequestParam int days){
+    public List<UserStatistic> getStatisticOfLastOnline(@RequestParam int days){
         return userService.getStatisticOfLastOnline(days);
     }
 
@@ -224,5 +221,24 @@ public class UserController {
     @GetMapping("/me")
     public UserProfileResponse getMe(@AuthenticationPrincipal UserEntity user){
         return new UserProfileResponse(user);
+    }
+
+    @GetMapping("/full-statistic")
+    @Operation(
+            summary = "Umumiy statistika olish",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Umumiy statistikalar", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserFullStatistic.class)))
+            }
+    )
+    public UserFullStatistic getFullStatistic() {
+        return userService.getFullStatistic();
+    }
+
+    @GetMapping("/profit")
+    @Operation(
+
+    )
+    public ProfitStatistic getProfitStatistic() {
+        return userService.getProfitStatistic();
     }
 }

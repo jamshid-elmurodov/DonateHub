@@ -1,6 +1,7 @@
 package donatehub.service.widget;
 
 import donatehub.domain.projections.WidgetInfo;
+import donatehub.domain.projections.WithdrawFullStatistic;
 import donatehub.domain.request.WidgetCreateRequest;
 import donatehub.service.user.UserService;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
 package donatehub.domain.entities;
 
+import donatehub.domain.embeddables.WithdrawPayment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,10 +18,8 @@ public class WithdrawEntity extends BaseEntity {
     @ManyToOne
     private UserEntity streamer;
 
-    @Column(name = "card_number")
-    private String cardNumber;
-
-    private Float amount;
+    @Embedded
+    private WithdrawPayment payment;
 
     @Enumerated(EnumType.STRING)
     private WithdrawStatus status;

@@ -45,7 +45,7 @@ public class BotExecutor {
         return "🆕Yangi donat" +
                 "\nIsm: " + donation.getDonaterName() +
                 "\nXabar: " + donation.getMessage() +
-                "\nMiqdor: " + donation.getPaymentInfo().getAmount();
+                "\nMiqdor: " + donation.getPayment().getAmount();
     }
 
     private record Message(Long chat_id, String text) {}

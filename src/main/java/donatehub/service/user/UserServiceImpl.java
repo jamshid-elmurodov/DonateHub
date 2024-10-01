@@ -1,7 +1,6 @@
 package donatehub.service.user;
 
-import donatehub.domain.projections.UserInfoForView;
-import donatehub.domain.projections.UserStatisticResponse;
+import donatehub.domain.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
@@ -10,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import donatehub.domain.entities.UserEntity;
-import donatehub.domain.projections.UserInfoForDonate;
 import donatehub.domain.constants.FileType;
 import donatehub.domain.exceptions.BaseException;
-import donatehub.domain.projections.UserInfo;
 import donatehub.domain.request.UserUpdateRequest;
 import donatehub.repo.UserRepository;
 import donatehub.service.cloud.CloudService;
@@ -35,20 +32,17 @@ public class UserServiceImpl implements UserService {
         log.info("Kanaldan foydalanuvchi qidirilmoqda: {}", channelName);
 
         UserInfoForDonate info = repo.findByChannelNameIgnoreCase(channelName).orElseThrow(
-                () -> {
-                    log.error("Kanal topilmadi: {}", channelName);
-                    return new BaseException(
-                            "Kanal topilmadi",
-                            HttpStatus.NOT_FOUND
-                    );
-                }
+                () -> new BaseException(
+                        "Kanal topilmadi " + channelName,
+                        HttpStatus.NOT_FOUND
+                )
         );
 
         UserEntity user = findById(info.getId());
 
         if (!user.getEnable()) {
             throw new BaseException(
-                    "Streamer topilmadi",
+                    "Streamer topilmadi: " + user.getId(),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -74,29 +68,29 @@ public class UserServiceImpl implements UserService {
 
         return repo.getByIdOrderByCreatedAt(id).orElseThrow(
                 () -> new BaseException(
-                        "Foydalanuvchi topilmadi",
+                        "Foydalanuvchi topilmadi: " + id,
                         HttpStatus.NOT_FOUND
                 )
         );
     }
 
     @Override
-    public UserEntity findById(Long chatId) {
-        log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", chatId);
+    public UserEntity findById(Long id) {
+        log.info("ID bo'yicha foydalanuvchi olinmoqda: {}", id);
 
-        return repo.findById(chatId).orElseThrow(
+        return repo.findById(id).orElseThrow(
                 () -> new BaseException(
-                        "Foydalanuvchi topilmadi",
+                        "Foydalanuvchi topilmadi: " + id,
                         HttpStatus.NOT_FOUND
                 )
         );
     }
 
     @Override
-    public void update(Long chatId, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
-        log.info("Foydalanuvchi ma'lumotlarini yangilash: ID - {}", chatId);
+    public void update(Long id, UserUpdateRequest updateReq, MultipartFile profileImg, MultipartFile bannerImg) {
+        log.info("Foydalanuvchi ma'lumotlarini yangilash: ID - {}", id);
 
-        UserEntity user = findById(chatId);
+        UserEntity user = findById(id);
 
         user.setDescription(updateReq.getDescription());
         user.setChannelUrl(updateReq.getChannelUrl());
@@ -113,7 +107,7 @@ public class UserServiceImpl implements UserService {
 
         repo.save(user);
 
-        log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", chatId);
+        log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", id);
     }
 
     @Override
@@ -150,13 +144,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserStatisticResponse> getStatisticsOfRegister(int days) {
+    public List<UserStatistic> getStatisticsOfRegister(int days) {
         log.info("Foydalanuvchilar statiskasini olish register bo'yicha: {} - kunlik", days);
         return repo.getStatisticOfRegister(days);
     }
 
     @Override
-    public List<UserStatisticResponse> getStatisticOfLastOnline(int days) {
+    public List<UserStatistic> getStatisticOfLastOnline(int days) {
         log.info("Foydalanuvchilar statiskasini olish online bo'yicha: {} - kunlik", days);
         return repo.getStatisticOfLastOnline(days);
     }
@@ -176,5 +170,15 @@ public class UserServiceImpl implements UserService {
         );
 
         log.info("Foydalanuvchi ma'lumotlari yangilandi: ID - {}", user.getId());
+    }
+
+    @Override
+    public UserFullStatistic getFullStatistic() {
+        return repo.getFullStatistic();
+    }
+
+    @Override
+    public ProfitStatistic getProfitStatistic() {
+        return repo.getProfitStatistic();
     }
 }
