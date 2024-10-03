@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -26,10 +25,10 @@ public class CloudFlareServiceImpl implements CloudService {
     private final Logger log = LoggerFactory.getLogger("CUSTOM_LOGGER");
 
     private static final String BUCKET_NAME = "donatehub";
-    private static final String CLOUDFLARE_ACCOUNT_ID = "9162406f34609f0eb2bda06470aa0ae6";
+    private static final String ACCOUNT_ID = "9162406f34609f0eb2bda06470aa0ae6";
     private static final String ACCESS_KEY = "749edf39504a482763af09c7403b5588";
     private static final String SECRET_KEY = "d091c7871b2a9f26e988b07d6a35bdab68f0a1c8c13124f0d8262ee06510212c";
-    private static final String CLOUDFLARE_R2_ENDPOINT = "https://" + CLOUDFLARE_ACCOUNT_ID + ".r2.cloudflarestorage.com";
+    private static final String CLOUDFLARE_R2_ENDPOINT = "https://" + ACCOUNT_ID + ".r2.cloudflarestorage.com";
 
     private final AwsBasicCredentials awsCreds = AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY);
 

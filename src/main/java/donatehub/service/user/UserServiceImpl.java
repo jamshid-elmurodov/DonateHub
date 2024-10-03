@@ -181,4 +181,9 @@ public class UserServiceImpl implements UserService {
     public ProfitStatistic getProfitStatistic() {
         return repo.getProfitStatistic();
     }
+
+    @Override
+    public List<UserEntity> getAllEnabledUsers() {
+        return repo.getAllByEnableTrue();
+    }
 }

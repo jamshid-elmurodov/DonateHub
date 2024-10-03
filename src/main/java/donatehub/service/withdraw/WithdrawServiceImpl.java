@@ -16,6 +16,8 @@ import donatehub.domain.projections.WithdrawInfo;
 import donatehub.repo.WithdrawRepository;
 import donatehub.service.user.UserService;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class WithdrawServiceImpl implements WithdrawService {
@@ -40,11 +42,15 @@ public class WithdrawServiceImpl implements WithdrawService {
             );
         }
 
-        WithdrawEntity saved = repo.save(new WithdrawEntity(
+        WithdrawEntity withdraw = new WithdrawEntity(
                 user,
                 new WithdrawPayment(cardNumber, amount, commission),
                 WithdrawStatus.PENDING
-        ));
+        );
+
+        withdraw.setUpdateAt(LocalDateTime.now());
+
+        WithdrawEntity saved = repo.save(withdraw);
 
         log.info("Chiqarish so'rovi yaratildi: {}", saved.getId());
     }
@@ -64,19 +70,17 @@ public class WithdrawServiceImpl implements WithdrawService {
     public WithdrawEntity findById(Long withdrawId) {
         log.info("Chiqarish so'rovi olinmoqda: withdrawId - {}", withdrawId);
         return repo.findById(withdrawId).orElseThrow(
-                () -> {
-                    return new BaseException(
-                            "Chiqarish bo'yicha so'rov topilmadi id:" + withdrawId,
-                            HttpStatus.NOT_FOUND
-                    );
-                }
+                () -> new BaseException(
+                        "Chiqarish bo'yicha so'rov topilmadi id:" + withdrawId,
+                        HttpStatus.NOT_FOUND
+                )
         );
     }
 
     @Override
     public Page<WithdrawInfo> getWithdrawsByStatus(int page, int size, WithdrawStatus status) {
         log.info("Holat bo'yicha chiqarish so'rovlarini olish: status - {}, page - {}, size - {}", status, page, size);
-        return repo.getAllByStatusOrderByCreatedAt(status, PageRequest.of(page, size));
+        return repo.getAllByStatusOrderByUpdateAt(status, PageRequest.of(page, size));
     }
 
     @Override

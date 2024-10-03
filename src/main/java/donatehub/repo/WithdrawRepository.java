@@ -10,7 +10,7 @@ import donatehub.domain.projections.WithdrawInfo;
 import org.springframework.data.jpa.repository.Query;
 
 public interface WithdrawRepository extends JpaRepository<WithdrawEntity, Long> {
-    Page<WithdrawInfo> getAllByStatusOrderByCreatedAt(WithdrawStatus status, Pageable pageable);
+    Page<WithdrawInfo> getAllByStatusOrderByUpdateAt(WithdrawStatus status, Pageable pageable);
 
     Page<WithdrawInfo> getAllByStreamerIdAndStatusOrderByCreatedAt(Long streamer_id, WithdrawStatus status, Pageable pageable);
 

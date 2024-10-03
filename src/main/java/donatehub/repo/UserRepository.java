@@ -43,6 +43,21 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     List<UserStatistic> getStatisticOfLastOnline(@Param("days") int days);
 
     @Query(
+            value = "SELECT days AS day, " +
+                    "COALESCE(COUNT(DISTINCT us.id), 0) AS users, " +
+                    "COALESCE(COUNT(DISTINCT dt.id), 0) AS donations, " +
+                    "COALESCE(COUNT(DISTINCT wt.id), 0) AS withdraws " +
+                    "FROM generate_series(current_date - INTERVAL '1 day' * :days, current_date, '1 day'::interval) AS days " +
+                    "LEFT JOIN users_table us ON us.last_online_at::date = days " +
+                    "LEFT JOIN donations_table dt ON dt.created_at::date = days AND dt.completed = true " +
+                    "LEFT JOIN withdraws_table wt ON wt.created_at::date = days " +
+                    "GROUP BY days " +
+                    "ORDER BY days",
+            nativeQuery = true
+    )
+    List<AdminStatisticByGraphic> getStatistic(@Param("days") int days);
+
+    @Query(
             value = """
                 select
                     count(*) as totalCount,
@@ -68,4 +83,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             nativeQuery = true
     )
     ProfitStatistic getProfitStatistic();
+
+    List<UserEntity> getAllByEnableTrue();
 }

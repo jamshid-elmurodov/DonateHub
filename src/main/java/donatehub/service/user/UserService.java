@@ -36,4 +36,6 @@ public interface UserService {
     UserFullStatistic getFullStatistic();
 
     ProfitStatistic getProfitStatistic();
+
+    List<UserEntity> getAllEnabledUsers();
 }

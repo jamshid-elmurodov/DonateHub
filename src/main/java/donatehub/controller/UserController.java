@@ -80,7 +80,7 @@ public class UserController {
                     @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true)
             }
     )
-    @GetMapping("/verified")
+    @GetMapping("/enabled")
     public PagedResponse<UserInfoForView> getApprovedUsers(@RequestParam int page, @RequestParam int size){
         return new PagedResponse<>(userService.getUsersByEnableState(true, page, size));
     }
@@ -93,7 +93,7 @@ public class UserController {
                     @Parameter(name = "size", description = "Sahifada ko'rsatiladigan elementlar soni", required = true)
             }
     )
-    @GetMapping("/not-verified")
+    @GetMapping("/disabled")
     public PagedResponse<UserInfoForView> getNotApproved(@RequestParam int page, @RequestParam int size){
         return new PagedResponse<>(userService.getUsersByEnableState(false, page, size));
     }

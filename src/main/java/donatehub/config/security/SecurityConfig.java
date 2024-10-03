@@ -37,7 +37,7 @@ public class SecurityConfig {
                                 "/api/v1/withdraw/cancel/**",
                                 "/api/v1/withdraw",
                                 "/api/v1/withdraw/full-statistic").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth", "/api/v1/donation/donate/**", "/api/v1/donation/complete/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth", "/api/v1/donation/**", "/api/v1/donation/complete/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())

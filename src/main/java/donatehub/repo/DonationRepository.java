@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import donatehub.domain.entities.DonationEntity;
 import donatehub.domain.projections.DonationStatistic;
 import donatehub.domain.projections.DonationInfo;
+import org.springframework.scheduling.annotation.Schedules;
 
 import java.util.List;
 import java.util.Optional;
